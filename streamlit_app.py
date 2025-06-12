@@ -273,6 +273,12 @@ def show_new_process_form():
     """Formularz nowego procesu"""
     st.subheader("Dodaj Nowy Proces")
     
+    # Session state do przechowywania stanu analizy
+    if 'analysis_completed' not in st.session_state:
+        st.session_state.analysis_completed = False
+    if 'last_analysis' not in st.session_state:
+        st.session_state.last_analysis = ""
+    
     with st.form("new_process"):
         title = st.text_input("Nazwa procesu *", placeholder="np. Wystawianie faktur")
         description = st.text_area(
@@ -301,13 +307,21 @@ def show_new_process_form():
                         st.success("Proces zapisany w bazie danych!")
                         st.balloons()
                         
-                        # Daj użytkownikowi czas na przeczytanie analizy
-                        st.info("💡 **Przeczytaj analizę powyżej, a następnie kliknij przycisk aby odświeżyć listę procesów.**")
-                        
-                        if st.button("🔄 Odśwież i pokaż w liście procesów", type="primary"):
-                            st.rerun()
+                        # Zapisz analizę w session state
+                        st.session_state.analysis_completed = True
+                        st.session_state.last_analysis = ai_analysis
                     else:
                         st.error("Błąd zapisu do bazy danych")
+    
+    # Przycisk odświeżania POZA formularzem
+    if st.session_state.analysis_completed:
+        st.info("💡 **Przeczytaj analizę powyżej, a następnie kliknij przycisk aby odświeżyć listę procesów.**")
+        
+        if st.button("🔄 Odśwież i pokaż w liście procesów", type="primary"):
+            # Wyczyść stan analizy
+            st.session_state.analysis_completed = False
+            st.session_state.last_analysis = ""
+            st.rerun()
 
 # MAIN APP
 def main():
