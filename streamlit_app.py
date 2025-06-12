@@ -6,6 +6,10 @@ import openai
 import os
 from datetime import datetime
 from supabase import create_client, Client
+from dotenv import load_dotenv
+
+# Ładuj zmienne środowiskowe z .env
+load_dotenv()
 
 # Konfiguracja strony
 st.set_page_config(page_title="SmartFlowAI", page_icon="🤖")
@@ -13,13 +17,38 @@ st.set_page_config(page_title="SmartFlowAI", page_icon="🤖")
 # Inicjalizacja klientów
 @st.cache_resource
 def init_supabase():
-    url = os.getenv("SUPABASE_URL") or st.secrets.get("SUPABASE_URL", "")
-    key = os.getenv("SUPABASE_ANON_KEY") or st.secrets.get("SUPABASE_ANON_KEY", "")
+    url = os.getenv("SUPABASE_URL")
+    key = os.getenv("SUPABASE_ANON_KEY")
+    
+    # Fallback do secrets jeśli .env nie ma wartości
+    if not url or not key:
+        try:
+            url = url or st.secrets.get("SUPABASE_URL", "")
+            key = key or st.secrets.get("SUPABASE_ANON_KEY", "")
+        except:
+            pass
+    
+    if not url or not key:
+        st.error("❌ Brak konfiguracji Supabase! Sprawdź .env lub secrets.toml")
+        st.stop()
+    
     return create_client(url, key)
 
 @st.cache_resource  
 def init_openai():
-    api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY", "")
+    api_key = os.getenv("OPENAI_API_KEY")
+    
+    # Fallback do secrets jeśli .env nie ma wartości
+    if not api_key:
+        try:
+            api_key = st.secrets.get("OPENAI_API_KEY", "")
+        except:
+            pass
+    
+    if not api_key:
+        st.error("❌ Brak klucza OpenAI! Sprawdź .env lub secrets.toml")
+        st.stop()
+    
     openai.api_key = api_key
     return openai
 
