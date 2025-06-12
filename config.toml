@@ -1,0 +1,32 @@
+# .streamlit/config.toml - Konfiguracja Streamlit dla SmartFlowAI
+
+[global]
+# Ustawienia globalne
+developmentMode = false
+showWarningOnDirectExecution = false
+
+[server]
+# Ustawienia serwera
+headless = true
+enableCORS = false
+enableXsrfProtection = true
+maxUploadSize = 50
+
+[browser]
+# Ustawienia przeglądarki
+gatherUsageStats = false
+serverAddress = "localhost"
+serverPort = 8501
+
+[theme]
+# Motyw aplikacji SmartFlowAI
+primaryColor = "#FF6B6B"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F0F2F6"
+textColor = "#262730"
+font = "sans serif"
+
+[logger]
+# Ustawienia logowania
+level = "info"
+messageFormat = "%(asctime)s %(message)s"

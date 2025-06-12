@@ -1,0 +1,26 @@
+# SmartFlowAI - Cursor AI Rules
+
+## Projekt
+- **Nazwa:** SmartFlowAI  
+- **Cel:** Analiza procesów biznesowych przez ChatGPT-4o
+- **Stack:** Python, Streamlit, Supabase, OpenAI
+- **Architektura:** Ultra-prosta (1 plik główny)
+
+## Zasady kodowania
+- Wszystko w streamlit_app.py (max 300 linii)
+- Funkcje proste i czytelne
+- Używaj type hints: def func(param: str) -> str
+- Komentarze po polsku dla logiki biznesowej
+- Error handling: try/except z user-friendly messages
+
+## Środowisko
+- Python 3.11+
+- Requirements: streamlit, supabase, openai, pytest
+- Testy w test_app.py
+- Zmienne środowiskowe w .env
+
+## AI Assistant guidelines
+- Priorytet: prostota i funkcjonalność
+- Zawsze testuj kod przed podaniem
+- Sugeruj ulepszenia tylko jeśli poprawiają UX
+- Używaj polskich komentarzy w kodzie biznesowym
