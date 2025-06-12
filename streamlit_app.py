@@ -1,5 +1,6 @@
 # Plik: streamlit_app.py
 # streamlit_app.py - Ultra-prosta aplikacja SmartFlowAI (2 dni MVP)
+# UWAGA: Projekt powstał z pomocą edytora Cursor oraz AI Claude Sonnet 4.
 
 import streamlit as st
 import openai
@@ -8,6 +9,8 @@ from datetime import datetime
 from supabase import create_client, Client
 from dotenv import load_dotenv
 import logging
+from fpdf import FPDF
+import tempfile
 
 # Konfiguracja logowania do pliku
 logging.basicConfig(
@@ -328,13 +331,16 @@ def show_dashboard():
         st.rerun()
     
     # Menu
-    tab1, tab2 = st.tabs(["📋 Przeanalizowane procesy", "➕ Nowy Proces"])
+    tab1, tab2, tab3 = st.tabs(["➕ Nowy Proces", "📋 Przeanalizowane procesy", "📄 Zestawienie w PDF"])
     
     with tab1:
-        show_processes_list()
+        show_new_process_form()
     
     with tab2:
-        show_new_process_form()
+        show_processes_list()
+    
+    with tab3:
+        show_pdf_summary_tab()
 
 def show_processes_list():
     """Lista procesów"""
@@ -518,6 +524,48 @@ def show_new_process_form():
                             st.rerun()
                         else:
                             st.error("Błąd zapisu do bazy danych")
+
+def show_pdf_summary_tab():
+    """Zakładka: Zestawienie w PDF"""
+    st.subheader("Zestawienie procesów w PDF")
+    processes = get_processes()
+    if not processes:
+        st.info("Brak procesów do zestawienia.")
+        return
+
+    # Edytowalny tekst nagłówka
+    header = st.text_input("Nagłówek raportu", value="Zestawienie przeanalizowanych procesów SmartFlowAI")
+    # Edytowalny tekst stopki
+    footer = st.text_input("Stopka raportu", value="Wygenerowano przez SmartFlowAI")
+
+    # Podgląd danych do PDF
+    st.markdown("### Podgląd danych do PDF:")
+    for p in processes:
+        st.markdown(f"**{p.get('title','')}:** {p.get('description','')}\n\n**Analiza AI:** {p.get('ai_analysis','')}\n---")
+
+    if st.button("Generuj PDF", type="primary"):
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=14)
+        pdf.multi_cell(0, 10, header)
+        pdf.ln(5)
+        for i, p in enumerate(processes, 1):
+            pdf.set_font("Arial", style="B", size=12)
+            pdf.cell(0, 10, f"{i}. {p.get('title','')}", ln=1)
+            pdf.set_font("Arial", size=11)
+            pdf.multi_cell(0, 8, f"Opis: {p.get('description','')}")
+            pdf.multi_cell(0, 8, f"Analiza AI: {p.get('ai_analysis','')}")
+            pdf.ln(2)
+        pdf.set_font("Arial", size=10)
+        pdf.ln(5)
+        pdf.cell(0, 10, footer, ln=1, align='C')
+        # Zapisz PDF do pliku tymczasowego
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+            pdf.output(tmp.name)
+            tmp.seek(0)
+            st.success("PDF wygenerowany!")
+            with open(tmp.name, "rb") as f:
+                st.download_button("Pobierz PDF", f, file_name="zestawienie_procesow.pdf", mime="application/pdf")
 
 def initialize_database():
     """Inicjalizuje bazę danych, jeśli tabele nie istnieją"""

@@ -2,7 +2,7 @@
 
 # SmartFlowAI - Prosta aplikacja analizy procesów (2 dni MVP)
 
-[![CI/CD](https://github.com/TWÓJ-USERNAME/smartflowai/actions/workflows/ci.yml/badge.svg)](https://github.com/TWÓJ-USERNAME/smartflowai/actions/workflows/ci.yml)
+[![CI/CD](https://github.com/emielregis2/SmartFlowAI/actions/workflows/ci.yml/badge.svg)](https://github.com/emielregis2/SmartFlowAI/actions/workflows/ci.yml)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -14,8 +14,8 @@ Projekt na zaliczenie kursu 10xDevs - wykonany w 2 dni.
 
 ### 1. Klonowanie
 ```bash
-git clone https://github.com/twoj-username/smartflowai.git
-cd smartflowai
+git clone https://github.com/emielregis2/SmartFlowAI.git
+cd SmartFlowAI
 ```
 
 ### 2. Instalacja
@@ -152,8 +152,14 @@ Automatyczny pipeline który:
 ## Autor
 
 **Dariusz Gąsior** - Projekt na zaliczenie kursu 10xDevs  
-GitHub: [@twoj-username](https://github.com/twoj-username)
+GitHub: [@emielregis2](https://github.com/emielregis2/SmartFlowAI)
 
 ---
 
 **Projekt wykonany w 2 dni!** ⚡
+
+---
+
+**Projekt powstał z pomocą edytora [Cursor](https://www.cursor.so/) oraz AI Claude Sonnet 4.**
+
+---

@@ -118,4 +118,6 @@ i projekt używa [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 **Autor:** Dariusz Gąsior  
 **Projekt:** SmartFlowAI - MVP w 2 dni  
-**GitHub:** [SmartFlowAI Repository](https://github.com/emielregis2/SmartFlowAI) 
+**GitHub:** [SmartFlowAI Repository](https://github.com/emielregis2/SmartFlowAI)
+
+This project was created with the help of the Cursor editor and Claude Sonnet 4 AI. 
