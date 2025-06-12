@@ -300,6 +300,8 @@ def show_new_process_form():
                     if save_process(title, description, ai_analysis):
                         st.success("Proces zapisany w bazie danych!")
                         st.balloons()
+                        # Odśwież aplikację żeby pokazać nowy proces w liście
+                        st.rerun()
                     else:
                         st.error("Błąd zapisu do bazy danych")
 
