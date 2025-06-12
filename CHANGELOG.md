@@ -7,6 +7,25 @@ i projekt używa [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.1.1] - 2025-01-20
+
+### 🔧 Zmienione
+- **Aktualizacja GitHub Actions do najnowszych wersji**
+  - Zaktualizowano `actions/upload-artifact` z v3 → v4
+  - Zaktualizowano `actions/cache` z v3 → v4
+  - Naprawiono problem z przestarzałymi wersjami akcji w CI/CD
+
+### 🐛 Naprawione
+- **Błąd GitHub Actions pipeline**
+  - Naprawiono błąd deprecacji `actions/upload-artifact@v1` (zaktualizowano do v4)
+  - Dodano generowanie pliku wyników testów `--junitxml=test-results.xml`
+  - Naprawiono indentację YAML w pliku `.github/workflows/ci.yml`
+  - Wyeliminowano błędy składni YAML powodujące niepowodzenia CI/CD
+
+### 🧪 Testowanie
+- Dodano generowanie raportów XML z wyników testów pytest
+- Testy są teraz poprawnie archiwizowane jako artefakty w GitHub Actions
+
 ## [1.1.0] - 2025-06-12
 
 ### ✨ Dodane
