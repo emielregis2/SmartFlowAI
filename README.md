@@ -55,7 +55,9 @@ streamlit run streamlit_app.py
 
 Aplikacja: `http://localhost:8501`
 
-**Login testowy:** `test@smartflowai.com` / `test123`
+**Konta testowe:** 
+- `test@smartflowai.com` / `test123`
+- `test@smatflow.pl` / `test123456`
 
 ## Funkcje
 
@@ -123,7 +125,9 @@ Automatyczny pipeline który:
 
 ## Przykład użycia
 
-1. **Zaloguj się:** `test@smartflowai.com` / `test123`
+1. **Zaloguj się:** użyj jednego z kont testowych:
+   - `test@smartflowai.com` / `test123`
+   - `test@smatflow.pl` / `test123456`
 2. **Dodaj proces:** 
    - Nazwa: "Wystawianie faktur"
    - Opis: "Ręcznie tworzę faktury w Excelu, sprawdzam dane klientów, wysyłam mailem..."

@@ -129,6 +129,15 @@ def show_login():
     st.title("SmartFlowAI")
     st.subheader("Zaloguj się")
     
+    # Informacja o kontach testowych
+    with st.expander("👥 Konta testowe", expanded=False):
+        st.info("""
+        **Dostępne konta testowe:**
+        
+        📧 **test@smartflowai.com** / test123
+        📧 **test@smatflow.pl** / test123456
+        """)
+    
     col1, col2, col3 = st.columns([1, 1, 1])
     with col2:
         with st.form("login"):
@@ -146,12 +155,18 @@ def show_login():
                             st.session_state.user = email
                             st.rerun()
                     except:
-                        # Fallback - do testów
-                        if email == "test@smartflowai.com" and password == "test123":
+                        # Fallback - użytkownicy testowi
+                        test_users = {
+                            "test@smartflowai.com": "test123",
+                            "test@smatflow.pl": "test123456"
+                        }
+                        
+                        if email in test_users and test_users[email] == password:
                             st.session_state.user = email
+                            st.success(f"✅ Zalogowano jako {email}")
                             st.rerun()
                         else:
-                            st.error("Błędne dane logowania")
+                            st.error("❌ Błędne dane logowania")
                 else:
                     st.error("Wypełnij wszystkie pola")
 
