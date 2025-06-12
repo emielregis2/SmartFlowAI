@@ -20,12 +20,20 @@ serverAddress = "localhost"
 serverPort = 8501
 
 [theme]
-# Motyw aplikacji SmartFlowAI
-primaryColor = "#FF6B6B"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F0F2F6"
-textColor = "#262730"
+# Dark Mode dla SmartFlowAI 🌙
+base = "dark"
+primaryColor = "#00D4AA"          # Mint green - akcenty i przyciski
+backgroundColor = "#0E1117"       # Główne tło - ciemne
+secondaryBackgroundColor = "#262730"  # Panele boczne - szare
+textColor = "#FAFAFA"            # Tekst - biały
 font = "sans serif"
+
+# Alternatywa Light Mode (zakomentowane):
+# base = "light"
+# primaryColor = "#FF6B6B"          # Coral - akcenty
+# backgroundColor = "#FFFFFF"       # Białe tło
+# secondaryBackgroundColor = "#F0F2F6"  # Jasno szare panele
+# textColor = "#262730"             # Ciemny tekst
 
 [logger]
 # Ustawienia logowania

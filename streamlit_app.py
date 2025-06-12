@@ -14,6 +14,64 @@ load_dotenv()
 # Konfiguracja strony
 st.set_page_config(page_title="SmartFlowAI", page_icon="🤖")
 
+# Custom CSS dla Dark Mode
+st.markdown("""
+<style>
+    /* Dark Mode Custom Styling */
+    .stApp {
+        background: linear-gradient(135deg, #0E1117 0%, #1e2328 100%);
+    }
+    
+    /* Poprawki dla ekspanderów w dark mode */
+    .streamlit-expanderHeader {
+        background-color: #262730 !important;
+        border: 1px solid #3e4147 !important;
+    }
+    
+    /* Styling dla success/error messages */
+    .stAlert > div {
+        border-radius: 10px;
+        border: none;
+    }
+    
+    /* Custom styling dla przycisków */
+    .stButton > button {
+        border-radius: 20px;
+        border: 2px solid #00D4AA;
+        transition: all 0.3s ease;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 212, 170, 0.3);
+    }
+    
+    /* Styling dla form elements */
+    .stTextInput > div > div > input {
+        border-radius: 10px;
+        border: 1px solid #3e4147;
+        background-color: #262730;
+    }
+    
+    .stTextArea > div > div > textarea {
+        border-radius: 10px;
+        border: 1px solid #3e4147;
+        background-color: #262730;
+    }
+    
+    /* Dark mode tabs styling */
+    .stTabs [data-baseweb="tab"] {
+        background-color: #262730;
+        border-radius: 10px 10px 0 0;
+    }
+    
+    /* Title glow effect */
+    h1 {
+        text-shadow: 0 0 10px rgba(0, 212, 170, 0.3);
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Inicjalizacja klientów
 @st.cache_resource
 def init_supabase():
