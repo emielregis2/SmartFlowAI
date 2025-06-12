@@ -273,14 +273,19 @@ def show_new_process_form():
     """Formularz nowego procesu"""
     st.subheader("Dodaj Nowy Proces")
     
-    # Session state do przechowywania stanu analizy
+    # Session state do przechowywania stanu analizy i formularza
     if 'analysis_completed' not in st.session_state:
         st.session_state.analysis_completed = False
     if 'last_analysis' not in st.session_state:
         st.session_state.last_analysis = ""
+    if 'form_key' not in st.session_state:
+        st.session_state.form_key = 0
     
-    with st.form("new_process"):
-        title = st.text_input("Nazwa procesu *", placeholder="np. Wystawianie faktur")
+    with st.form(f"new_process_{st.session_state.form_key}"):
+        title = st.text_input(
+            "Nazwa procesu *", 
+            placeholder="np. Wystawianie faktur"
+        )
         description = st.text_area(
             "Opis procesu *", 
             placeholder="Opisz krok po kroku jak wygląda ten proces...",
@@ -307,9 +312,10 @@ def show_new_process_form():
                         st.success("Proces zapisany w bazie danych!")
                         st.balloons()
                         
-                        # Zapisz analizę w session state
+                        # Zapisz analizę w session state i wyczyść formularz
                         st.session_state.analysis_completed = True
                         st.session_state.last_analysis = ai_analysis
+                        st.session_state.form_key += 1  # Wymuś nowy formularz
                     else:
                         st.error("Błąd zapisu do bazy danych")
     
