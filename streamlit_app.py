@@ -224,50 +224,99 @@ def delete_process(process_id: int):
 # STRONY APLIKACJI
 
 def show_login():
-    """Strona logowania"""
+    """Strona logowania i rejestracji"""
     st.title("SmartFlowAI")
-    st.subheader("Zaloguj się")
     
-    # Informacja o kontach testowych
-    with st.expander("👥 Konta testowe", expanded=False):
-        st.info("""
-        **Dostępne konta testowe:**
+    # Zakładki logowanie / rejestracja
+    login_tab, register_tab = st.tabs(["🔑 Logowanie", "📝 Rejestracja"])
+    
+    # Zakładka logowania
+    with login_tab:
+        st.subheader("Zaloguj się")
         
-        📧 **test@smartflowai.com** / test123
-        📧 **test@smartflow.pl** / test123456
-        """)
+        # Informacja o kontach testowych
+        with st.expander("👥 Konta testowe", expanded=False):
+            st.info("""
+            **Dostępne konta testowe:**
+            
+            📧 **test@smartflowai.com** / test123
+            📧 **test@smartflow.pl** / test123456
+            """)
+        
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col2:
+            with st.form("login"):
+                email = st.text_input("Email")
+                password = st.text_input("Hasło", type="password")
+                if st.form_submit_button("Zaloguj"):
+                    if email and password:
+                        try:
+                            # Próba logowania przez Supabase
+                            response = supabase.auth.sign_in_with_password({
+                                "email": email,
+                                "password": password
+                            })
+                            if response.user:
+                                st.session_state.user = email
+                                st.rerun()
+                        except Exception as e:
+                            # Fallback - użytkownicy testowi
+                            test_users = {
+                                "test@smartflowai.com": "test123",
+                                "test@smartflow.pl": "test123456"
+                            }
+                            
+                            if email in test_users and test_users[email] == password:
+                                st.session_state.user = email
+                                st.success(f"✅ Zalogowano jako {email}")
+                                st.rerun()
+                            else:
+                                st.error(f"❌ Błędne dane logowania: {str(e)}")
+                    else:
+                        st.error("Wypełnij wszystkie pola")
     
-    col1, col2, col3 = st.columns([1, 1, 1])
-    with col2:
-        with st.form("login"):
-            email = st.text_input("Email")
-            password = st.text_input("Hasło", type="password")
-            if st.form_submit_button("Zaloguj"):
-                if email and password:
+    # Zakładka rejestracji
+    with register_tab:
+        st.subheader("Utwórz konto")
+        
+        with st.form("register"):
+            new_email = st.text_input("Email")
+            new_password = st.text_input("Hasło", type="password")
+            confirm_password = st.text_input("Potwierdź hasło", type="password")
+            
+            if st.form_submit_button("Zarejestruj"):
+                if not new_email or not new_password or not confirm_password:
+                    st.error("❌ Wypełnij wszystkie pola!")
+                elif new_password != confirm_password:
+                    st.error("❌ Hasła nie są identyczne!")
+                elif len(new_password) < 6:
+                    st.error("❌ Hasło musi mieć co najmniej 6 znaków!")
+                else:
                     try:
-                        # Próba logowania przez Supabase
-                        response = supabase.auth.sign_in_with_password({
-                            "email": email,
-                            "password": password
+                        # Rejestracja w Supabase
+                        logger.info(f"REGISTER: Próba rejestracji użytkownika: {new_email}")
+                        response = supabase.auth.sign_up({
+                            "email": new_email,
+                            "password": new_password
                         })
-                        if response.user:
-                            st.session_state.user = email
-                            st.rerun()
-                    except:
-                        # Fallback - użytkownicy testowi
-                        test_users = {
-                            "test@smartflowai.com": "test123",
-                            "test@smartflow.pl": "test123456"
-                        }
                         
-                        if email in test_users and test_users[email] == password:
-                            st.session_state.user = email
-                            st.success(f"✅ Zalogowano jako {email}")
+                        if response.user:
+                            logger.info(f"REGISTER: Zarejestrowano użytkownika: {new_email}")
+                            st.success(f"✅ Konto utworzone! Możesz się teraz zalogować jako {new_email}")
+                            
+                            # Opcjonalnie: automatycznie zaloguj użytkownika
+                            st.session_state.user = new_email
+                            st.balloons()
                             st.rerun()
                         else:
-                            st.error("❌ Błędne dane logowania")
-                else:
-                    st.error("Wypełnij wszystkie pola")
+                            st.error("❌ Błąd rejestracji - sprawdź dane i spróbuj ponownie")
+                    except Exception as e:
+                        logger.error(f"REGISTER: Błąd rejestracji użytkownika {new_email}: {str(e)}")
+                        st.error(f"❌ Błąd rejestracji: {str(e)}")
+                        
+                        # Informacja dla użytkownika, że może email jest już zajęty
+                        if "already registered" in str(e) or "already exists" in str(e):
+                            st.warning("⚠️ Ten email jest już zarejestrowany. Spróbuj się zalogować.")
 
 def show_dashboard():
     """Dashboard główny"""
@@ -470,8 +519,58 @@ def show_new_process_form():
                         else:
                             st.error("Błąd zapisu do bazy danych")
 
+def initialize_database():
+    """Inicjalizuje bazę danych, jeśli tabele nie istnieją"""
+    try:
+        logger.info("DB_INIT: Sprawdzanie i inicjalizacja bazy danych")
+        
+        # Sprawdź czy tabela processes istnieje
+        # Uwaga: to jest bardzo uproszczone sprawdzenie, w prawdziwym środowisku
+        # powinno się użyć bardziej zaawansowanych metod
+        try:
+            supabase.table('processes').select('id').limit(1).execute()
+            logger.info("DB_INIT: Tabela 'processes' już istnieje")
+        except Exception as e:
+            if "relation" in str(e) and "does not exist" in str(e):
+                logger.warning("DB_INIT: Tabela 'processes' nie istnieje, tworzę...")
+                
+                # SQL do utworzenia tabeli
+                sql = """
+                CREATE TABLE IF NOT EXISTS processes (
+                    id BIGSERIAL PRIMARY KEY,
+                    user_email TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    description TEXT NOT NULL,
+                    ai_analysis TEXT,
+                    created_at TIMESTAMPTZ DEFAULT NOW()
+                );
+                
+                -- Dodaj Row Level Security dla prywatności danych
+                ALTER TABLE processes ENABLE ROW LEVEL SECURITY;
+                
+                -- Polityka - użytkownicy widzą tylko swoje procesy
+                CREATE POLICY IF NOT EXISTS "Users manage own" ON processes 
+                FOR ALL USING (auth.email() = user_email);
+                """
+                
+                # Wykonaj SQL (w prawdziwym środowisku powinno się używać migracji)
+                supabase.sql(sql).execute()
+                logger.info("DB_INIT: Utworzono tabelę 'processes' z Row Level Security")
+            else:
+                raise e
+                
+        return True
+        
+    except Exception as e:
+        logger.error(f"DB_INIT: Błąd inicjalizacji bazy danych: {str(e)}")
+        return False
+
 # MAIN APP
 def main():
+    # Inicjalizacja bazy danych
+    initialize_database()
+    
+    # Routing
     if not st.session_state.user:
         show_login()
     else:
