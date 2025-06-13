@@ -1,12 +1,15 @@
 # Plik: README.md
 
-# SmartFlowAI - Prosta aplikacja analizy procesów (2 dni MVP)
+# SmartFlowAI - Aplikacja analizy procesów (Wersja Produkcyjna)
 
 [![CI/CD](https://github.com/emielregis2/SmartFlowAI/actions/workflows/ci.yml/badge.svg)](https://github.com/emielregis2/SmartFlowAI/actions/workflows/ci.yml)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Production Ready](https://img.shields.io/badge/status-production%20ready-green.svg)](https://github.com/emielregis2/SmartFlowAI)
 
 **SmartFlowAI** analizuje procesy biznesowe przez ChatGPT-4o i daje konkretne rekomendacje automatyzacji.
+
+🚀 **Wersja produkcyjna** - bez debugowania, zoptymalizowana wydajność, tylko logi błędów.
 
 Projekt na zaliczenie kursu 10xDevs - wykonany w 2 dni.
 
@@ -74,6 +77,30 @@ Aplikacja: `http://localhost:8501`
 - ✅ **CI/CD** - Automatyczne testy i deploy
 
 **To wszystko!** Ultra-proste MVP z pełną automatyzacją i zarządzaniem procesami.
+
+## 🚀 Wersja Produkcyjna
+
+### Optymalizacje wydajności:
+- ❌ **Usunięto debugowanie** - Brak sekcji "🔍 Debugging" w interfejsie
+- ❌ **Usunięto logi debugowania** - Tylko logi błędów (ERROR level)
+- ❌ **Usunięto pliki logów** - Brak `smartflow_debug.log`
+- ✅ **Zoptymalizowano logowanie** - Tylko konsola, bez plików
+- ✅ **Czysta wersja produkcyjna** - Gotowa do wdrożenia
+
+### Różnice między wersjami:
+| Funkcja              | Wersja deweloperska     | Wersja produkcyjna |
+| -------------------- | ----------------------- | ------------------ |
+| Sekcja debugowania   | ✅ Widoczna              | ❌ Usunięta         |
+| Logi szczegółowe     | ✅ INFO/DEBUG            | ❌ Tylko ERROR      |
+| Plik logów           | ✅ `smartflow_debug.log` | ❌ Brak             |
+| Wydajność            | 🐌 Wolniejsza            | ⚡ Zoptymalizowana  |
+| Gotowość produkcyjna | ❌ Nie                   | ✅ Tak              |
+
+### Korzyści wersji produkcyjnej:
+- 🚀 **Szybsza** - Brak niepotrzebnych logów
+- 🔒 **Bezpieczniejsza** - Brak wrażliwych informacji w logach
+- 💾 **Mniej miejsca** - Brak plików logów
+- 🎯 **Czytsza** - Interfejs bez elementów deweloperskich
 
 ## Nowe funkcjonalności
 

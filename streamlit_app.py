@@ -15,13 +15,12 @@ from fpdf.enums import XPos, YPos
 import tempfile
 import io
 
-# Konfiguracja logowania do pliku
+# Konfiguracja logowania - tylko błędy do konsoli
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.ERROR,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('smartflow_debug.log', encoding='utf-8'),
-        logging.StreamHandler()  # Też na konsoli dla development
+        logging.StreamHandler()  # Tylko konsola dla błędów
     ]
 )
 logger = logging.getLogger(__name__)
@@ -90,9 +89,69 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Mock klasy dla trybu testowego
+class MockSupabase:
+    def __init__(self):
+        self.table_name = None
+    
+    def table(self, name):
+        self.table_name = name
+        return self
+    
+    def insert(self, data):
+        return MockResponse({"data": [{"id": 1, **data}], "error": None})
+    
+    def select(self, columns="*"):
+        return self
+    
+    def eq(self, column, value):
+        return self
+    
+    def order(self, column, desc=False):
+        return self
+    
+    def execute(self):
+        # Zwróć przykładowe dane testowe
+        if self.table_name == "processes":
+            return MockResponse({
+                "data": [
+                    {
+                        "id": 1,
+                        "title": "Przykładowy proces testowy",
+                        "description": "To jest proces testowy",
+                        "ai_analysis": "🔍 **ANALIZA TESTOWA:** To jest przykładowa analiza w trybie testowym.",
+                        "user_email": "test@smartflow.pl",
+                        "created_at": "2025-06-13T12:00:00Z"
+                    }
+                ],
+                "error": None
+            })
+        return MockResponse({"data": [], "error": None})
+    
+    def delete(self):
+        return MockResponse({"data": None, "error": None})
+    
+    def update(self, data):
+        return MockResponse({"data": [{"id": 1, **data}], "error": None})
+
+class MockResponse:
+    def __init__(self, response_data):
+        self.data = response_data.get("data")
+        self.error = response_data.get("error")
+
+class MockOpenAI:
+    def __init__(self):
+        self.api_key = "test-key"
+
 # Inicjalizacja klientów
 @st.cache_resource
 def init_supabase():
+    # Sprawdź czy jesteśmy w trybie testowym
+    environment = os.getenv("ENVIRONMENT", "").lower()
+    if environment == "test":
+        st.info("🧪 Tryb testowy - używam mock Supabase")
+        return MockSupabase()
+    
     url = os.getenv("SUPABASE_URL")
     key = os.getenv("SUPABASE_ANON_KEY")
     
@@ -112,6 +171,12 @@ def init_supabase():
 
 @st.cache_resource  
 def init_openai():
+    # Sprawdź czy jesteśmy w trybie testowym
+    environment = os.getenv("ENVIRONMENT", "").lower()
+    if environment == "test":
+        st.info("🧪 Tryb testowy - używam mock OpenAI")
+        return MockOpenAI()
+    
     api_key = os.getenv("OPENAI_API_KEY")
     
     # Fallback do secrets jeśli .env nie ma wartości
@@ -399,6 +464,48 @@ Odpowiedz w następującym formacie:
 Bądź bardzo konkretny w rekomendacjach - podawaj nazwiska narzędzi, linki, ceny, czasy wdrożenia. Używaj aktualnych danych z 2025 roku.
 """
     
+    # Sprawdź czy jesteśmy w trybie testowym
+    environment = os.getenv("ENVIRONMENT", "").lower()
+    if environment == "test":
+        # Zwróć mock odpowiedź w trybie testowym
+        return f"""🔍 **ANALIZA PROCESU (TRYB TESTOWY)**
+Proces: {title}
+
+⚠️ **ZIDENTYFIKOWANE PROBLEMY**  
+- Proces wykonywany manualnie
+- Czasochłonne działania
+- Podatność na błędy
+
+🛠️ **REKOMENDOWANE ROZWIĄZANIE**
+**Narzędzie główne:** Zapier - automatyzacja workflow
+**Dodatkowe integracje:** Google Sheets, Email
+**Stopień automatyzacji:** 80%
+
+💰 **INWESTYCJA**
+**Koszt wdrożenia:** 500 zł jednorazowo
+**Koszt miesięczny:** 100 zł/mies.
+
+⏱️ **OSZCZĘDNOŚCI**
+**Czas:** 20 godzin miesięcznie → 4 godziny (redukcja o 80%)
+**Pieniądze:** 1500 zł miesięcznie oszczędności netto
+**ROI:** 300% zwrot w 2 miesiące
+
+📋 **PLAN WDROŻENIA** (6 tygodni)
+**Tydzień 1-2:** Analiza i konfiguracja
+**Tydzień 3-4:** Implementacja automatyzacji  
+**Tydzień 5:** Testy i optymalizacja
+**Tydzień 6:** Wdrożenie produkcyjne
+
+⚡ **PIERWSZE KROKI**
+1. Załóż konto Zapier
+2. Skonfiguruj pierwszy workflow
+3. Przetestuj na małej próbce danych
+
+🎯 **OCZEKIWANE REZULTATY**
+Znaczna redukcja czasu pracy manualnej i zwiększenie efektywności procesu.
+
+**UWAGA:** To jest analiza w trybie testowym. W wersji produkcyjnej otrzymasz szczegółową analizę AI."""
+    
     try:
         response = openai_client.chat.completions.create(
             model="gpt-4o",  # WAŻNE: gpt-4o ma dostęp do internetu
@@ -411,92 +518,65 @@ Bądź bardzo konkretny w rekomendacjach - podawaj nazwiska narzędzi, linki, ce
         return f"Błąd analizy: {str(e)}"
 
 def save_process(title: str, description: str, ai_analysis: str):
-    """Zapisuje proces do bazy"""
+    """Zapisuje proces do bazy danych"""
     try:
-        data_to_insert = {
+        result = supabase.table('processes').insert({
             'user_email': st.session_state.user,
             'title': title,
             'description': description,
-            'ai_analysis': ai_analysis,
-            'created_at': datetime.now().isoformat()
-        }
+            'ai_analysis': ai_analysis
+        }).execute()
         
-        logger.info(f"SAVE_PROCESS: Zapisuję dane - Title: '{title}', Desc: '{description[:50]}...', User: {st.session_state.user}")
-        
-        result = supabase.table('processes').insert(data_to_insert).execute()
-        
-        logger.info(f"SAVE_PROCESS: Wynik zapisu: {result.data}")
-        
-        # Sprawdź czy rzeczywiście się zapisało
-        if result.data and len(result.data) > 0:
-            st.success(f"✅ Proces '{title}' został zapisany!")
-            return True
-        else:
-            st.error(f"❌ Proces się nie zapisał - brak danych w odpowiedzi")
-            return False
-            
+        return True
     except Exception as e:
-        st.error(f"❌ Błąd zapisu: {str(e)}")
+        logger.error(f"SAVE_PROCESS_ERROR: {str(e)}")
         return False
 
 def get_processes():
-    """Pobiera procesy użytkownika - BEZ CACHE!"""
+    """Pobiera procesy użytkownika z bazy danych"""
     try:
         result = supabase.table('processes').select('*').eq('user_email', st.session_state.user).order('created_at', desc=True).execute()
-        logger.info(f"GET_PROCESSES: Pobrano {len(result.data)} procesów dla {st.session_state.user}")
         return result.data
     except Exception as e:
-        logger.error(f"GET_PROCESSES: Błąd pobierania dla {st.session_state.user}: {str(e)}")
-        st.error(f"❌ Błąd pobierania: {str(e)}")
+        logger.error(f"GET_PROCESSES_ERROR: {str(e)}")
         return []
 
 def delete_process(process_id: int):
-    """Usuwa proces"""
+    """Usuwa proces z bazy danych"""
     try:
-        # Najpierw sprawdź czy proces istnieje
-        existing = supabase.table('processes').select('id').eq('id', process_id).eq('user_email', st.session_state.user).execute()
+        # Sprawdź czy proces należy do użytkownika
+        check_result = supabase.table('processes').select('id').eq('id', process_id).eq('user_email', st.session_state.user).execute()
         
-        if not existing.data:
-            st.warning("⚠️ Proces nie został znaleziony lub brak uprawnień")
+        if not check_result.data:
             return False
         
         # Usuń proces
         result = supabase.table('processes').delete().eq('id', process_id).execute()
-        logger.info(f"DELETE_PROCESS: Usunięto proces ID {process_id}")
-        st.success("✅ Proces został usunięty!")
-        st.session_state.processes_updated = True  # Odśwież listę po usunięciu
         return True
-        
     except Exception as e:
-        logger.error(f"DELETE_PROCESS: Błąd usuwania procesu ID {process_id}: {str(e)}")
-        st.error(f"❌ Błąd usuwania: {str(e)}")
+        logger.error(f"DELETE_PROCESS_ERROR: {str(e)}")
         return False
 
 def update_process(process_id: int, title: str, description: str, ai_analysis: str):
     """Aktualizuje proces w bazie danych"""
     try:
-        # Najpierw sprawdź czy proces istnieje
-        existing = supabase.table('processes').select('id').eq('id', process_id).eq('user_email', st.session_state.user).execute()
+        # Sprawdź czy proces należy do użytkownika
+        check_result = supabase.table('processes').select('id').eq('id', process_id).eq('user_email', st.session_state.user).execute()
         
-        if not existing.data:
-            st.warning("⚠️ Proces nie został znaleziony lub brak uprawnień")
+        if not check_result.data:
             return False
         
         # Aktualizuj proces
         result = supabase.table('processes').update({
             'title': title,
             'description': description,
-            'ai_analysis': ai_analysis
+            'ai_analysis': ai_analysis,
+            'updated_at': 'now()'
         }).eq('id', process_id).execute()
         
-        logger.info(f"UPDATE_PROCESS: Zaktualizowano proces ID {process_id}")
-        st.success("✅ Proces został zaktualizowany!")
-        st.session_state.processes_updated = True  # Odśwież listę po aktualizacji
         return True
-        
     except Exception as e:
-        logger.error(f"UPDATE_PROCESS: Błąd aktualizacji procesu ID {process_id}: {str(e)}")
-        st.error(f"❌ Błąd aktualizacji: {str(e)}")
+        logger.error(f"UPDATE_PROCESS_ERROR: {str(e)}")
         return False
 
 # STRONY APLIKACJI
@@ -572,14 +652,12 @@ def show_login():
                 else:
                     try:
                         # Rejestracja w Supabase
-                        logger.info(f"REGISTER: Próba rejestracji użytkownika: {new_email}")
                         response = supabase.auth.sign_up({
                             "email": new_email,
                             "password": new_password
                         })
                         
                         if response.user:
-                            logger.info(f"REGISTER: Zarejestrowano użytkownika: {new_email}")
                             st.success(f"✅ Konto utworzone! Możesz się teraz zalogować jako {new_email}")
                             
                             # Opcjonalnie: automatycznie zaloguj użytkownika
@@ -589,7 +667,7 @@ def show_login():
                         else:
                             st.error("❌ Błąd rejestracji - sprawdź dane i spróbuj ponownie")
                     except Exception as e:
-                        logger.error(f"REGISTER: Błąd rejestracji użytkownika {new_email}: {str(e)}")
+                        logger.error(f"REGISTER_ERROR: {str(e)}")
                         st.error(f"❌ Błąd rejestracji: {str(e)}")
                         
                         # Informacja dla użytkownika, że może email jest już zajęty
@@ -624,14 +702,12 @@ def show_processes_list():
     # Sprawdź czy lista wymaga odświeżenia po dodaniu nowego procesu
     if st.session_state.get('processes_updated', False):
         st.session_state.processes_updated = False  # Wyczyść flagę
-        logger.info("PROCESSES_LIST: Auto-odświeżenie listy po dodaniu nowego procesu")
         st.rerun()
     
     # Przycisk odświeżania
     col1, col2 = st.columns([3, 1])
     with col2:
         if st.button("🔄 Odśwież listę", type="secondary"):
-            logger.info("PROCESSES_LIST: Ręczne odświeżenie listy")
             st.rerun()
     
     processes = get_processes()
@@ -737,18 +813,6 @@ def show_new_process_form():
     """Formularz nowego procesu"""
     st.subheader("Dodaj Nowy Proces")
     
-    # Informacja o logach debugowania
-    with st.expander("🔍 Debugging", expanded=False):
-        st.info("Logi debugowania są zapisywane w pliku: `smartflow_debug.log`")
-        if st.button("📄 Pokaż ostatnie 10 linii logów"):
-            try:
-                with open('smartflow_debug.log', 'r', encoding='utf-8') as f:
-                    lines = f.readlines()
-                    last_lines = lines[-10:] if len(lines) >= 10 else lines
-                    st.code(''.join(last_lines))
-            except FileNotFoundError:
-                st.warning("Plik logów jeszcze nie istnieje")
-    
     # Session state do przechowywania stanu analizy i formularza
     if 'analysis_completed' not in st.session_state:
         st.session_state.analysis_completed = False
@@ -784,7 +848,6 @@ def show_new_process_form():
         st.info("💡 **Przeczytaj analizę powyżej, a następnie kliknij przycisk aby przejść do następnego procesu.**")
         
         if st.button("➡️ Następny proces do analizy", type="primary"):
-            logger.info(f"NEXT_PROCESS: Użytkownik kliknął 'Następny proces', resetuję stan, form_key: {st.session_state.form_key} -> {st.session_state.form_key + 1}")
             # Wyczyść stan analizy i wymuś nowy formularz
             st.session_state.analysis_completed = False
             st.session_state.last_title = ""
@@ -796,7 +859,6 @@ def show_new_process_form():
             st.rerun()
     else:
         # Pokaż formularz tylko gdy nie ma aktywnej analizy
-        logger.info(f"FORM: Renderuję formularz z kluczem: new_process_{st.session_state.form_key}")
         with st.form(f"new_process_{st.session_state.form_key}"):
             title = st.text_input(
                 "Nazwa procesu *", 
@@ -837,7 +899,7 @@ def show_new_process_form():
                 budget = st.selectbox(
                     "Budżet na automatyzację:", 
                     ["", "do 500 zł/mies", "500-2000 zł/mies", "2000-5000 zł/mies", "5000+ zł/mies"]
-            )
+                )
             
             if st.form_submit_button("🤖 Analizuj przez AI", type="primary"):
                 if not title or not description:
@@ -845,19 +907,12 @@ def show_new_process_form():
                 elif len(description) < 20:
                     st.error("Opis musi mieć co najmniej 20 znaków")
                 else:
-                    # Log dane z formularza
-                    logger.info(f"FORM_SUBMIT: Dane z formularza - Title: '{title}', Desc: '{description[:50]}...', Depth: {analysis_depth}")
-                    
                     with st.spinner("Analizuję przez ChatGPT-4o..."):
                         # Analiza AI z dodatkowymi parametrami
                         ai_analysis = analyze_with_ai(title, description, analysis_depth, company_size, industry, budget)
                         
-                        logger.info(f"FORM_SUBMIT: Analiza AI: '{ai_analysis[:50]}...'")
-                        
                         # Zapisz do bazy
                         if save_process(title, description, ai_analysis):
-                            logger.info(f"FORM_SUBMIT: Zapisano do bazy - Title: '{title}'")
-                            
                             # Zapisz dane w session state
                             st.session_state.analysis_completed = True
                             st.session_state.last_title = title
@@ -1124,18 +1179,11 @@ def show_pdf_summary_tab():
 def initialize_database():
     """Inicjalizuje bazę danych, jeśli tabele nie istnieją"""
     try:
-        logger.info("DB_INIT: Sprawdzanie i inicjalizacja bazy danych")
-        
         # Sprawdź czy tabela processes istnieje
-        # Uwaga: to jest bardzo uproszczone sprawdzenie, w prawdziwym środowisku
-        # powinno się użyć bardziej zaawansowanych metod
         try:
             supabase.table('processes').select('id').limit(1).execute()
-            logger.info("DB_INIT: Tabela 'processes' już istnieje")
         except Exception as e:
             if "relation" in str(e) and "does not exist" in str(e):
-                logger.warning("DB_INIT: Tabela 'processes' nie istnieje, tworzę...")
-                
                 # SQL do utworzenia tabeli
                 sql = """
                 CREATE TABLE IF NOT EXISTS processes (
@@ -1157,14 +1205,13 @@ def initialize_database():
                 
                 # Wykonaj SQL (w prawdziwym środowisku powinno się używać migracji)
                 supabase.sql(sql).execute()
-                logger.info("DB_INIT: Utworzono tabelę 'processes' z Row Level Security")
             else:
                 raise e
                 
         return True
         
     except Exception as e:
-        logger.error(f"DB_INIT: Błąd inicjalizacji bazy danych: {str(e)}")
+        logger.error(f"DB_INIT_ERROR: {str(e)}")
         return False
 
 # MAIN APP

@@ -1,0 +1,52 @@
+# Development and CI/CD dependencies for SmartFlowAI
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-xdist>=3.3.1
+pytest-mock>=3.11.1
+pytest-asyncio>=0.21.1
+
+# Code quality
+flake8>=6.0.0
+black>=23.7.0
+isort>=5.12.0
+mypy>=1.5.0
+
+# Security
+bandit>=1.7.5
+safety>=2.3.5
+
+# Build tools
+build>=0.10.0
+wheel>=0.41.0
+twine>=4.0.2
+
+# Pre-commit hooks
+pre-commit>=3.3.3
+
+# Documentation
+sphinx>=7.1.0
+sphinx-rtd-theme>=1.3.0
+
+# Development utilities
+ipython>=8.14.0
+jupyter>=1.0.0
+notebook>=7.0.0
+
+# Debugging
+pdb++>=0.10.3
+ipdb>=0.13.13
+
+# Performance profiling
+memory-profiler>=0.61.0
+line-profiler>=4.1.0
+
+# Docker utilities
+docker-compose>=1.29.2
+
+# Git utilities
+gitpython>=3.1.32
+
+# Environment management
+python-dotenv>=1.0.0 
