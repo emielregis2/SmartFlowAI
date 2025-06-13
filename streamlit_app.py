@@ -236,7 +236,7 @@ def analyze_with_ai(title: str, description: str, analysis_depth: str = "Pogłę
     
     # Modyfikacja promptu w zależności od głębokości analizy
     if analysis_depth == "Podstawowa (szybka)":
-        prompt = f"""
+    prompt = f"""
 Przeanalizuj ten proces biznesowy i podaj krótką rekomendację:
 
 PROCES: {title}
@@ -527,7 +527,7 @@ def save_process(title: str, description: str, ai_analysis: str):
             'ai_analysis': ai_analysis
         }).execute()
         
-        return True
+            return True
     except Exception as e:
         logger.error(f"SAVE_PROCESS_ERROR: {str(e)}")
         return False
@@ -764,8 +764,8 @@ def show_processes_list():
                         st.session_state[f"editing_{process['id']}"] = True
                         st.rerun()
                 with col3:  # Maksymalnie po prawej stronie
-                    if st.button(f"🗑️ Usuń", key=f"del_{process['id']}"):
-                        if delete_process(process['id']):
+                if st.button(f"🗑️ Usuń", key=f"del_{process['id']}"):
+                    if delete_process(process['id']):
                             st.rerun()
                 
                 # Formularz edycji (jeśli aktywny)
@@ -899,7 +899,7 @@ def show_new_process_form():
                 budget = st.selectbox(
                     "Budżet na automatyzację:", 
                     ["", "do 500 zł/mies", "500-2000 zł/mies", "2000-5000 zł/mies", "5000+ zł/mies"]
-                )
+            )
             
             if st.form_submit_button("🤖 Analizuj przez AI", type="primary"):
                 if not title or not description:
@@ -1047,8 +1047,8 @@ def show_pdf_summary_tab():
                     return ''.join(safe_chars)
                 
                 # Tworzymy PDF z obsługą Unicode
-                pdf = FPDF()
-                pdf.add_page()
+        pdf = FPDF()
+        pdf.add_page()
                 pdf.set_auto_page_break(auto=True, margin=15)
                 
                 # fpdf2 nie ma wbudowanej obsługi polskich znaków - używamy konwersji
@@ -1069,7 +1069,7 @@ def show_pdf_summary_tab():
                 pdf.set_font(font_family, "B", size=14)
                 header_text = safe_text(prepare_text_for_pdf(header, 100))
                 pdf.cell(0, 10, header_text, new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
-                pdf.ln(5)
+        pdf.ln(5)
                 
                 # Procesy - ograniczamy do pierwszych 10 dla lepszego przeglądu
                 display_processes = processes[:10] if len(processes) > 10 else processes
@@ -1089,7 +1089,7 @@ def show_pdf_summary_tab():
                     description = safe_text(prepare_text_for_pdf(p.get('description',''), 1500))  # Zwiększone z 500 do 1500
                     pdf.cell(0, 6, "Opis:", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                     pdf.multi_cell(0, 5, description)  # multi_cell dla długich tekstów
-                    pdf.ln(2)
+            pdf.ln(2)
                     
                     # Analiza AI - pełny tekst z wieloma liniami (zwiększony limit)
                     analysis = safe_text(prepare_text_for_pdf(p.get('ai_analysis',''), 2000))  # Zwiększone z 500 do 2000
@@ -1099,7 +1099,7 @@ def show_pdf_summary_tab():
                 
                 # Informacja o ograniczeniu
                 if len(processes) > 10:
-                    pdf.ln(5)
+        pdf.ln(5)
                     pdf.set_font(font_family, "I", size=8)
                     limit_text = safe_text(f"Pokazano 10 z {len(processes)} procesów. Pełna lista dostępna w aplikacji.")
                     pdf.cell(0, 6, limit_text, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
