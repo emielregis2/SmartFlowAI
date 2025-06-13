@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Plik: streamlit_app.py
 # streamlit_app.py - Ultra-prosta aplikacja SmartFlowAI (2 dni MVP)
 # UWAGA: Projekt powstał z pomocą edytora Cursor oraz AI Claude Sonnet 4.
@@ -10,7 +11,9 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 import logging
 from fpdf import FPDF
+from fpdf.enums import XPos, YPos
 import tempfile
+import io
 
 # Konfiguracja logowania do pliku
 logging.basicConfig(
@@ -135,28 +138,273 @@ if 'user' not in st.session_state:
 
 # FUNKCJE POMOCNICZE
 
-def analyze_with_ai(title: str, description: str) -> str:
-    """Analizuje proces przez ChatGPT-4o"""
-    prompt = f"""
+def analyze_with_ai(title: str, description: str, analysis_depth: str = "Pogłębiona", company_size: str = "", industry: str = "", budget: str = "") -> str:
+    """Ultra wnikliwa analiza procesu przez ChatGPT-4o z wyszukiwaniem internetowym"""
+    
+    # Dodatkowy kontekst firmy
+    company_context = ""
+    if company_size or industry or budget:
+        company_context = f"""
+## KONTEKST FIRMY:
+**Wielkość firmy:** {company_size}
+**Branża:** {industry}
+**Budżet na automatyzację:** {budget}
+"""
+    
+    # Branżowe szablony kontekstu
+    industry_context = {
+        "E-commerce/Handel": "Uwzględnij integracje z Allegro, Amazon, BaseLinker, Shopify, WooCommerce, systemy magazynowe i płatności online.",
+        "Księgowość": "Uwzględnij integracje z iFirma, Wfirma, SAP, Comarch ERP, JPK, US, ZUS, systemy bankowe.",
+        "Marketing/Reklama": "Uwzględnij integracje z Facebook Ads, Google Ads, MailChimp, HubSpot, analytics, CRM.",
+        "IT/Software": "Uwzględnij integracje z GitHub, Jira, Slack, CI/CD, monitoring, ticketing systems.",
+        "Logistyka": "Uwzględnij integracje z systemami WMS, TMS, śledzenie przesyłek, API kurierów.",
+        "Usługi finansowe": "Uwzględnij integracje z systemami bankowymi, KNF, AML, RODO, systemy płatności.",
+        "Produkcja": "Uwzględnij integracje z systemami ERP, MES, IoT, kontrola jakości, planowanie produkcji.",
+        "Edukacja": "Uwzględnij integracje z systemami LMS, e-learning, zarządzanie studentami, certyfikaty.",
+        "Zdrowie": "Uwzględnij integracje z systemami medycznymi, RODO w ochronie zdrowia, NFZ, e-recepty."
+    }
+    
+    # Dodaj branżowy kontekst jeśli wybrano branżę
+    branch_specific = ""
+    if industry and industry in industry_context:
+        branch_specific = f"\n\n**UWAGI BRANŻOWE:** {industry_context[industry]}"
+    
+    # Modyfikacja promptu w zależności od głębokości analizy
+    if analysis_depth == "Podstawowa (szybka)":
+        prompt = f"""
 Przeanalizuj ten proces biznesowy i podaj krótką rekomendację:
 
 PROCES: {title}
 OPIS: {description}
+{company_context}{branch_specific}
 
 Odpowiedz w formacie:
-OCENA: [1-10]/10
-PROBLEM: [główny problem w 1 zdaniu]
-ROZWIĄZANIE: [konkretne narzędzie np. Zapier, Airtable]
-OSZCZĘDNOŚCI: [szacowany czas/pieniądze miesięcznie]
-WDROŻENIE: [1-2 kroki implementacji]
+🔍 **ANALIZA:** [główny problem w 2-3 zdaniach]
+🛠️ **ROZWIĄZANIE:** [konkretne narzędzie np. Zapier, Airtable]
+💰 **KOSZT:** [szacowany koszt miesięczny]
+⏱️ **OSZCZĘDNOŚCI:** [szacowany czas/pieniądze miesięcznie]
+⚡ **PIERWSZE KROKI:** [2-3 konkretne kroki]
+"""
+    elif analysis_depth == "Ekspercka (pełna analiza)":
+        prompt = f"""
+Jesteś ekspertem w automatyzacji procesów biznesowych z 15-letnim doświadczeniem. Przeprowadź najgłębszą możliwą analizę tego procesu.
+
+WAŻNE: Wyszukaj w internecie najnowsze informacje o narzędziach, cennikach, case studies i opiniach użytkowników z 2025 roku.
+
+## PROCES DO ANALIZY:
+**Nazwa procesu:** {title}
+**Opis procesu:** {description}
+{company_context}{branch_specific}
+
+## ULTRA SZCZEGÓŁOWA ANALIZA:
+
+### 1. DEKOMPOZYCJA PROCESU (szczegółowa)
+- Mapowanie każdego kroku z czasami
+- Identyfikacja wszystkich touchpointów
+- Analiza przepływu danych i dokumentów
+- Punkty integracji z innymi systemami
+
+### 2. ANALIZA PROBLEMÓW (pogłębiona)
+- Koszty ukryte i jawne
+- Analiza ryzyka błędów
+- Wpływ na inne procesy
+- Bottlenecki i wąskie gardła
+
+### 3. BADANIE RYNKU (aktualne dane 2025)
+- Porównanie 5-7 najlepszych narzędzi
+- Aktualne cenniki i promocje
+- Opinie użytkowników z ostatnich 6 miesięcy
+- Integracje z polskimi systemami (US, ZUS, JPK)
+
+### 4. WARIANTY ROZWIĄZAŃ (3 opcje)
+- BASIC: Minimum viable automation
+- STANDARD: Optymalne rozwiązanie
+- PREMIUM: Maksymalna automatyzacja
+
+### 5. SZCZEGÓŁOWY PLAN WDROŻENIA (8 tygodni)
+- Harmonogram tygodniowy
+- Zasoby i kompetencje
+- Punkty kontrolne i KPI
+- Plan zarządzania ryzykiem
+
+### 6. ANALIZA FINANSOWA (ROI)
+- Szczegółowe kalkulacje kosztów
+- Analiza zwrotu z inwestycji
+- Scenariusze optymistyczny/pesymistyczny
+- Ukryte koszty i oszczędności
+
+### 7. MONITORING I OPTYMALIZACJA
+- KPI do śledzenia
+- Narzędzia monitoringu
+- Plan ciągłego doskonalenia
+
+Odpowiedz w pełnym formacie z wszystkimi sekcjami, bądź bardzo konkretny w rekomendacjach.
+"""
+    else:  # Pogłębiona (domyślna)
+        prompt = f"""
+Jesteś ekspertem w automatyzacji procesów biznesowych i rozwiązaniach no-code/low-code. Twoim zadaniem jest przeprowadzenie pogłębionej analizy podanego procesu biznesowego i zaproponowanie konkretnego planu automatyzacji.
+
+WAŻNE: Przed rozpoczęciem analizy, wyszukaj w internecie aktualne informacje o najnowszych narzędziach no-code/low-code dostępnych na polskim rynku w 2025 roku, ich cennikach, możliwościach integracji i opinii użytkowników.
+
+## PROCES DO ANALIZY:
+**Nazwa procesu:** {title}
+**Opis procesu:** {description}
+{company_context}{branch_specific}
+
+## SCHEMAT ANALIZY:
+
+### 1. DEKOMPOZYCJA PROCESU
+Rozłóż proces na jednotne kroki i zidentyfikuj:
+- Punkty wejścia (triggery)
+- Działania manualne
+- Przepływ danych
+- Punkty decyzyjne
+- Interakcje międzyludzkie
+- Wyniki końcowe
+
+### 2. IDENTYFIKACJA PROBLEMÓW
+Dla każdego kroku określ:
+- Czasochłonność (szacuj minuty/godziny)
+- Podatność na błędy
+- Powtarzalność
+- Wymagane umiejętności
+- Wąskie gardła procesu
+
+### 3. BADANIE RYNKU NARZĘDZI
+Wyszukaj i przeanalizuj aktualne narzędzia no-code/low-code, koncentrując się na:
+- **Polskim rynku:** Asseco, iFirma, Comarch, BaseLinker
+- **Globalnych liderach:** Zapier, Make.com, n8n, Airtable, Monday.com
+- **Niszowych rozwiązaniach:** branżowe automaty, AI-powered tools
+- **Aktualne cenniki** za 2025 rok
+- **Integracje** z polskimi systemami
+
+### 4. PROJEKTOWANIE ROZWIĄZANIA
+Zaproponuj 2-3 warianty automatyzacji:
+- **WARIANT PODSTAWOWY** - szybke wdrożenie, niski koszt
+- **WARIANT OPTYMALNY** - balans między kosztem a efektywnością  
+- **WARIANT PREMIUM** - maksymalna automatyzacja
+
+Dla każdego wariantu określ:
+- Główne narzędzie/platformę
+- Dodatkowe integracje
+- Stopień automatyzacji (%)
+- Szacowany czas wdrożenia
+- Koszt miesięczny/roczny
+
+### 5. SZCZEGÓŁOWY PLAN WDROŻENIA
+Dla wybranego wariantu (optymalnego) opisz:
+
+**FAZA 1: PRZYGOTOWANIE (Tydzień 1-2)**
+- Lista wymaganych kont/licencji
+- Konfiguracja środowiska
+- Przygotowanie danych źródłowych
+- Szkolenie zespołu
+
+**FAZA 2: IMPLEMENTACJA (Tydzień 3-4)**
+- Krok po kroku konfiguracja narzędzi
+- Tworzenie automatyzacji/workflow
+- Testy podstawowe
+- Integracje z istniejącymi systemami
+
+**FAZA 3: TESTOWANIE (Tydzień 5)**
+- Testy funkcjonalne
+- Testy obciążeniowe
+- Procedury awaryjne
+- Poprawki i optymalizacje
+
+**FAZA 4: WDROŻENIE (Tydzień 6)**
+- Migracja danych
+- Szkolenie użytkowników końcowych
+- Monitoring pierwszych tygodni
+- Dokumentacja procesów
+
+### 6. ANALIZA KORZYŚCI
+Oblicz konkretne oszczędności:
+
+**OSZCZĘDNOŚCI CZASOWE:**
+- Czas obecnie: X godzin miesięcznie
+- Czas po automatyzacji: Y godzin miesięcznie
+- Oszczędność: (X-Y) godzin = Z% redukcji
+
+**OSZCZĘDNOŚCI FINANSOWE:**
+- Koszt pracy ludzkiej: [stawka/h] × [godziny] = A zł/mies.
+- Koszt narzędzi: B zł/mies.
+- Oszczędność netto: (A-B) zł/mies.
+- ROI: [(A-B)/B] × 100%
+
+**KORZYŚCI JAKOŚCIOWE:**
+- Redukcja błędów (szacuj %)
+- Poprawa konsystencji
+- Skalowalność procesu
+- Lepsza widoczność/reporting
+
+### 7. RYZYKA I MITYGACJA
+Zidentyfikuj potencjalne problemy:
+- Techniczne (integracje, stabilność)
+- Biznesowe (opór zespołu, zmiana procesów)
+- Finansowe (ukryte koszty, lock-in vendor)
+- Strategia zarządzania ryzykiem
+
+### 8. ALTERNATYWNE PODEJŚCIA
+Jeśli automatyzacja nie jest opłacalna, zaproponuj:
+- Optymalizację manualną
+- Częściową automatyzację
+- Outsourcing procesu
+- Całkowitą eliminację procesu
+
+## FORMAT ODPOWIEDZI:
+
+Odpowiedz w następującym formacie:
+
+🔍 **ANALIZA PROCESU**
+[Dekompozycja na kroki z czasami]
+
+⚠️ **ZIDENTYFIKOWANE PROBLEMY**  
+[Lista wąskich gardeł i czasochłonnych działań]
+
+🛠️ **REKOMENDOWANE ROZWIĄZANIE**
+**Narzędzie główne:** [nazwa] - [krótki opis]
+**Dodatkowe integracje:** [lista]
+**Stopień automatyzacji:** [X]%
+
+💰 **INWESTYCJA**
+**Koszt wdrożenia:** [kwota] zł jednorazowo
+**Koszt miesięczny:** [kwota] zł/mies.
+
+⏱️ **OSZCZĘDNOŚCI**
+**Czas:** [X] godzin miesięcznie → [Y] godzin (redukcja o [Z]%)
+**Pieniądze:** [kwota] zł miesięcznie oszczędności netto
+**ROI:** [X]% zwrot w [Y] miesięcy
+
+📋 **PLAN WDROŻENIA** (6 tygodni)
+**Tydzień 1-2:** [przygotowanie]
+**Tydzień 3-4:** [implementacja]  
+**Tydzień 5:** [testy]
+**Tydzień 6:** [wdrożenie]
+
+⚡ **PIERWSZE KROKI**
+1. [konkretny krok 1]
+2. [konkretny krok 2]  
+3. [konkretny krok 3]
+
+🎯 **OCZEKIWANE REZULTATY**
+[Konkretne, mierzalne korzyści w perspektywie 3-6 miesięcy]
+
+## UWAGI DODATKOWE:
+- Uwzględnij specyfikę polskiego rynku (RODO, JPK, integracje z US/ZUS)
+- Sprawdź dostępność polskiego wsparcia technicznego
+- Oceń łatwość wdrożenia dla zespołu bez doświadczenia IT
+- Zaproponuj monitoring i KPI do śledzenia efektywności
+
+Bądź bardzo konkretny w rekomendacjach - podawaj nazwiska narzędzi, linki, ceny, czasy wdrożenia. Używaj aktualnych danych z 2025 roku.
 """
     
     try:
         response = openai_client.chat.completions.create(
-            model="gpt-4o",  # WAŻNE: gpt-4o nie mini!
+            model="gpt-4o",  # WAŻNE: gpt-4o ma dostęp do internetu
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=300,
-            temperature=0.7
+            max_tokens=2000 if analysis_depth == "Podstawowa (szybka)" else 3000,  # Więcej tokenów dla głębszej analizy
+            temperature=0.3   # Niższa dla bardziej precyzyjnych rekomendacji
         )
         return response.choices[0].message.content
     except Exception as e:
@@ -222,6 +470,33 @@ def delete_process(process_id: int):
     except Exception as e:
         logger.error(f"DELETE_PROCESS: Błąd usuwania procesu ID {process_id}: {str(e)}")
         st.error(f"❌ Błąd usuwania: {str(e)}")
+        return False
+
+def update_process(process_id: int, title: str, description: str, ai_analysis: str):
+    """Aktualizuje proces w bazie danych"""
+    try:
+        # Najpierw sprawdź czy proces istnieje
+        existing = supabase.table('processes').select('id').eq('id', process_id).eq('user_email', st.session_state.user).execute()
+        
+        if not existing.data:
+            st.warning("⚠️ Proces nie został znaleziony lub brak uprawnień")
+            return False
+        
+        # Aktualizuj proces
+        result = supabase.table('processes').update({
+            'title': title,
+            'description': description,
+            'ai_analysis': ai_analysis
+        }).eq('id', process_id).execute()
+        
+        logger.info(f"UPDATE_PROCESS: Zaktualizowano proces ID {process_id}")
+        st.success("✅ Proces został zaktualizowany!")
+        st.session_state.processes_updated = True  # Odśwież listę po aktualizacji
+        return True
+        
+    except Exception as e:
+        logger.error(f"UPDATE_PROCESS: Błąd aktualizacji procesu ID {process_id}: {str(e)}")
+        st.error(f"❌ Błąd aktualizacji: {str(e)}")
         return False
 
 # STRONY APLIKACJI
@@ -380,14 +655,6 @@ def show_processes_list():
                 'description': process.get('description', '')[:50] + '...' if process.get('description') else 'BRAK'
             })
     
-    # Pokaż poprawną informację o procesach
-    col_info, col_refresh = st.columns([4, 1])
-    with col_info:
-        st.info(f"📊 Znaleziono {len(valid_processes)} przeanalizowanych procesów dla użytkownika: {st.session_state.user}")
-    with col_refresh:
-        if len(valid_processes) > 0:
-            st.caption("💡 Dodałeś nowy proces? Kliknij 🔄 Odśwież")
-    
     # Pokaż procesy z błędnymi danymi jeśli istnieją
     if invalid_processes:
         with st.expander(f"⚠️ Procesy z błędnymi danymi ({len(invalid_processes)})", expanded=False):
@@ -408,14 +675,59 @@ def show_processes_list():
             created_date = process['created_at'][:10]
             
             with st.expander(f"{title} ({created_date})", expanded=False):
-                st.write("**Opis:**")
+                st.write("Opis:")
                 st.write(process.get('description', 'Brak opisu'))
                 
-                st.write("**Analiza AI:**")
+                st.write("Analiza AI:")
                 st.write(process.get('ai_analysis', 'Brak analizy'))
                 
-                if st.button(f"🗑️ Usuń", key=f"del_{process['id']}"):
-                    if delete_process(process['id']):
+                # Przyciski akcji - Edytuj po lewej, Usuń maksymalnie po prawej
+                col1, col2, col3 = st.columns([1, 2, 1])
+                with col1:
+                    if st.button(f"✏️ Edytuj", key=f"edit_{process['id']}"):
+                        st.session_state[f"editing_{process['id']}"] = True
+                        st.rerun()
+                with col3:  # Maksymalnie po prawej stronie
+                    if st.button(f"🗑️ Usuń", key=f"del_{process['id']}"):
+                        if delete_process(process['id']):
+                            st.rerun()
+                
+                # Formularz edycji (jeśli aktywny)
+                if st.session_state.get(f"editing_{process['id']}", False):
+                    st.markdown("---")
+                    st.subheader("✏️ Edytuj proces")
+                    
+                    with st.form(f"edit_form_{process['id']}"):
+                        edit_title = st.text_input(
+                            "Nazwa procesu", 
+                            value=process.get('title', ''),
+                            key=f"edit_title_{process['id']}"
+                        )
+                        edit_description = st.text_area(
+                            "Opis procesu", 
+                            value=process.get('description', ''),
+                            height=150,
+                            key=f"edit_desc_{process['id']}"
+                        )
+                        edit_analysis = st.text_area(
+                            "Analiza AI", 
+                            value=process.get('ai_analysis', ''),
+                            height=100,
+                            key=f"edit_analysis_{process['id']}"
+                        )
+                        
+                        col_save, col_space, col_cancel = st.columns([1, 2, 1])
+                        with col_save:
+                            if st.form_submit_button("💾 Zapisz zmiany", type="primary"):
+                                if edit_title and edit_description and edit_analysis:
+                                    if update_process(process['id'], edit_title, edit_description, edit_analysis):
+                                        st.session_state[f"editing_{process['id']}"] = False
+                                        st.rerun()
+                                else:
+                                    st.error("Wypełnij wszystkie pola!")
+                        with col_cancel:  # Maksymalnie po prawej stronie
+                            if st.form_submit_button("❌ Anuluj"):
+                                st.session_state[f"editing_{process['id']}"] = False
                         st.rerun()
                         
         except Exception as e:
@@ -462,8 +774,8 @@ def show_new_process_form():
         
         # Pokaż wprowadzone dane
         st.subheader("📋 Wprowadzony proces:")
-        st.write(f"**Nazwa:** {st.session_state.last_title}")
-        st.write(f"**Opis:** {st.session_state.last_description}")
+        st.write(f"Nazwa: {st.session_state.last_title}")
+        st.write(f"Opis: {st.session_state.last_description}")
         
         # Pokaż analizę AI
         st.subheader("🤖 Analiza AI:")
@@ -496,6 +808,37 @@ def show_new_process_form():
                 height=150
             )
             
+            # Opcje analizy
+            st.markdown("### ⚙️ Opcje analizy")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                analysis_depth = st.selectbox(
+                    "Głębokość analizy:",
+                    ["Podstawowa (szybka)", "Pogłębiona (z wyszukiwaniem)", "Ekspercka (pełna analiza)"],
+                    index=1  # Domyślnie pogłębiona
+                )
+            
+            with col2:
+                company_size = st.selectbox(
+                    "Wielkość firmy:", 
+                    ["", "1-10 osób", "11-50 osób", "51-200 osób", "200+ osób"]
+                )
+            
+            col3, col4 = st.columns(2)
+            with col3:
+                industry = st.selectbox(
+                    "Branża:", 
+                    ["", "IT/Software", "E-commerce/Handel", "Produkcja", "Usługi finansowe", 
+                     "Marketing/Reklama", "Księgowość", "Logistyka", "Edukacja", "Zdrowie", "Inna"]
+                )
+            
+            with col4:
+                budget = st.selectbox(
+                    "Budżet na automatyzację:", 
+                    ["", "do 500 zł/mies", "500-2000 zł/mies", "2000-5000 zł/mies", "5000+ zł/mies"]
+            )
+            
             if st.form_submit_button("🤖 Analizuj przez AI", type="primary"):
                 if not title or not description:
                     st.error("Wypełnij wszystkie pola!")
@@ -503,11 +846,11 @@ def show_new_process_form():
                     st.error("Opis musi mieć co najmniej 20 znaków")
                 else:
                     # Log dane z formularza
-                    logger.info(f"FORM_SUBMIT: Dane z formularza - Title: '{title}', Desc: '{description[:50]}...'")
+                    logger.info(f"FORM_SUBMIT: Dane z formularza - Title: '{title}', Desc: '{description[:50]}...', Depth: {analysis_depth}")
                     
                     with st.spinner("Analizuję przez ChatGPT-4o..."):
-                        # Analiza AI
-                        ai_analysis = analyze_with_ai(title, description)
+                        # Analiza AI z dodatkowymi parametrami
+                        ai_analysis = analyze_with_ai(title, description, analysis_depth, company_size, industry, budget)
                         
                         logger.info(f"FORM_SUBMIT: Analiza AI: '{ai_analysis[:50]}...'")
                         
@@ -538,34 +881,245 @@ def show_pdf_summary_tab():
     # Edytowalny tekst stopki
     footer = st.text_input("Stopka raportu", value="Wygenerowano przez SmartFlowAI")
 
+    # Funkcja do generowania tekstu do kopiowania
+    def generate_text_content():
+        """Generuje pełny tekst raportu do kopiowania"""
+        text_content = f"{header}\n{'='*50}\n\n"
+        
+        # Dodaj wszystkie procesy (nie tylko 10 jak w PDF)
+        for i, p in enumerate(processes, 1):
+            text_content += f"{i}. {p.get('title','')}\n"
+            text_content += f"{'='*30}\n"
+            text_content += f"OPIS:\n{p.get('description','')}\n\n"
+            text_content += f"ANALIZA AI:\n{p.get('ai_analysis','')}\n\n"
+            text_content += f"{'-'*50}\n\n"
+        
+        text_content += f"\n{footer}\n"
+        text_content += f"Wygenerowano: {processes[0].get('created_at', '')[:10] if processes else ''}"
+        
+        return text_content
+
     # Podgląd danych do PDF
     st.markdown("### Podgląd danych do PDF:")
     for p in processes:
-        st.markdown(f"**{p.get('title','')}:** {p.get('description','')}\n\n**Analiza AI:** {p.get('ai_analysis','')}\n---")
+        st.write(f"{p.get('title','')}: {p.get('description','')}")
+        st.write(f"Analiza AI: {p.get('ai_analysis','')}")
+        st.write("---")
 
-    if st.button("Generuj PDF", type="primary"):
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Arial", size=14)
-        pdf.multi_cell(0, 10, header)
-        pdf.ln(5)
-        for i, p in enumerate(processes, 1):
-            pdf.set_font("Arial", style="B", size=12)
-            pdf.cell(0, 10, f"{i}. {p.get('title','')}", ln=1)
-            pdf.set_font("Arial", size=11)
-            pdf.multi_cell(0, 8, f"Opis: {p.get('description','')}")
-            pdf.multi_cell(0, 8, f"Analiza AI: {p.get('ai_analysis','')}")
-            pdf.ln(2)
-        pdf.set_font("Arial", size=10)
-        pdf.ln(5)
-        pdf.cell(0, 10, footer, ln=1, align='C')
-        # Zapisz PDF do pliku tymczasowego
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-            pdf.output(tmp.name)
-            tmp.seek(0)
-            st.success("PDF wygenerowany!")
-            with open(tmp.name, "rb") as f:
-                st.download_button("Pobierz PDF", f, file_name="zestawienie_procesow.pdf", mime="application/pdf")
+    # Przyciski w dwóch kolumnach
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("📄 Generuj PDF", type="primary"):
+            try:
+                # Funkcja pomocnicza do przygotowania tekstu dla PDF
+                def prepare_text_for_pdf(text, max_length=2000):  # Zwiększone z 500 do 2000
+                    """Przygotowuje tekst dla PDF zachowując polskie znaki"""
+                    if not text:
+                        return ""
+                    
+                    # Zachowaj polskie znaki, tylko wyczyść formatowanie
+                    clean_text = str(text)
+                    
+                    # Usuń znaki specjalne które mogą powodować problemy z formatowaniem
+                    clean_text = clean_text.replace('\n', ' ').replace('\r', ' ')
+                    clean_text = clean_text.replace('\t', ' ')  # Usuń tabulatory
+                    clean_text = ' '.join(clean_text.split())  # Usuń wielokrotne spacje
+                    
+                    # Skróć tekst jeśli jest za długi (ale z większym limitem)
+                    if len(clean_text) > max_length:
+                        clean_text = clean_text[:max_length] + "..."
+                    
+                    return clean_text
+
+                # Funkcja pomocnicza do bezpiecznego tekstu
+                def safe_text(text):
+                    """Zwraca tekst bezpieczny dla wybranej czcionki - usuwa polskie znaki i emoji, ale zachowuje treść"""
+                    if not text:
+                        return ""
+                    
+                    # Konwersja polskich znaków na ASCII
+                    replacements = {
+                        'ą': 'a', 'ć': 'c', 'ę': 'e', 'ł': 'l', 'ń': 'n', 'ó': 'o', 'ś': 's', 'ź': 'z', 'ż': 'z',
+                        'Ą': 'A', 'Ć': 'C', 'Ę': 'E', 'Ł': 'L', 'Ń': 'N', 'Ó': 'O', 'Ś': 'S', 'Ź': 'Z', 'Ż': 'Z'
+                    }
+                    
+                    clean_text = str(text)
+                    
+                    # Zamień polskie znaki
+                    for polish, ascii_char in replacements.items():
+                        clean_text = clean_text.replace(polish, ascii_char)
+                    
+                    # Zamień emoji na tekst opisowy (zamiast je usuwać)
+                    emoji_replacements = {
+                        '🔍': ' [ANALIZA] ',
+                        '⚠️': ' [PROBLEMY] ',
+                        '🛠️': ' [ROZWIAZANIE] ',
+                        '💰': ' [INWESTYCJA] ',
+                        '⏱️': ' [OSZCZEDNOSCI] ',
+                        '📋': ' [PLAN] ',
+                        '⚡': ' [KROKI] ',
+                        '🎯': ' [REZULTATY] ',
+                        '🤖': ' [AI] ',
+                        '✅': ' [OK] ',
+                        '❌': ' [BLAD] ',
+                        '📄': ' [PDF] ',
+                        '✏️': ' [EDYTUJ] ',
+                        '🗑️': ' [USUN] ',
+                        '💾': ' [ZAPISZ] ',
+                        '🚀': ' [START] ',
+                        '📊': ' [DANE] ',
+                        '🔧': ' [NARZEDZIA] ',
+                        '📈': ' [WZROST] ',
+                        '💡': ' [POMYSL] ',
+                        '🎉': ' [SUKCES] '
+                    }
+                    
+                    # Zamień znane emoji na tekst
+                    for emoji, replacement in emoji_replacements.items():
+                        clean_text = clean_text.replace(emoji, replacement)
+                    
+                    # Usuń pozostałe znaki spoza ASCII 32-126, ale zachowaj podstawowe znaki białe
+                    safe_chars = []
+                    for char in clean_text:
+                        char_code = ord(char)
+                        if 32 <= char_code <= 126:  # Podstawowe znaki ASCII (spacja do ~)
+                            safe_chars.append(char)
+                        elif char in ['\n', '\r', '\t']:  # Zachowaj podstawowe znaki białe
+                            safe_chars.append(' ')  # Zamień na spację
+                        # Inne znaki specjalne pomijamy (ale główne emoji już zostały zamienione)
+                    
+                    return ''.join(safe_chars)
+                
+                # Tworzymy PDF z obsługą Unicode
+                pdf = FPDF()
+                pdf.add_page()
+                pdf.set_auto_page_break(auto=True, margin=15)
+                
+                # fpdf2 nie ma wbudowanej obsługi polskich znaków - używamy konwersji
+                font_family = 'Helvetica'
+                unicode_support = False
+                
+                def fallback_clean_polish(text):
+                    """Konwersja polskich znaków na ASCII"""
+                    replacements = {
+                        'ą': 'a', 'ć': 'c', 'ę': 'e', 'ł': 'l', 'ń': 'n', 'ó': 'o', 'ś': 's', 'ź': 'z', 'ż': 'z',
+                        'Ą': 'A', 'Ć': 'C', 'Ę': 'E', 'Ł': 'L', 'Ń': 'N', 'Ó': 'O', 'Ś': 'S', 'Ź': 'Z', 'Ż': 'Z'
+                    }
+                    for polish, ascii_char in replacements.items():
+                        text = text.replace(polish, ascii_char)
+                    return text
+                
+                # Nagłówek
+                pdf.set_font(font_family, "B", size=14)
+                header_text = safe_text(prepare_text_for_pdf(header, 100))
+                pdf.cell(0, 10, header_text, new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
+                pdf.ln(5)
+                
+                # Procesy - ograniczamy do pierwszych 10 dla lepszego przeglądu
+                display_processes = processes[:10] if len(processes) > 10 else processes
+                
+                for i, p in enumerate(display_processes, 1):
+                    # Sprawdź czy mamy miejsce na stronie
+                    if pdf.get_y() > 250:  # Jeśli jesteśmy blisko końca strony
+                        pdf.add_page()
+                    
+                    # Tytuł procesu
+                    pdf.set_font(font_family, "B", size=11)
+                    title_text = safe_text(prepare_text_for_pdf(f"{i}. {p.get('title','')}", 80))
+                    pdf.cell(0, 8, title_text, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                    
+                    # Opis procesu - pełny tekst z wieloma liniami (zwiększony limit)
+                    pdf.set_font(font_family, "", size=9)
+                    description = safe_text(prepare_text_for_pdf(p.get('description',''), 1500))  # Zwiększone z 500 do 1500
+                    pdf.cell(0, 6, "Opis:", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                    pdf.multi_cell(0, 5, description)  # multi_cell dla długich tekstów
+                    pdf.ln(2)
+                    
+                    # Analiza AI - pełny tekst z wieloma liniami (zwiększony limit)
+                    analysis = safe_text(prepare_text_for_pdf(p.get('ai_analysis',''), 2000))  # Zwiększone z 500 do 2000
+                    pdf.cell(0, 6, "Analiza AI:", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                    pdf.multi_cell(0, 5, analysis)  # multi_cell dla długich tekstów
+                    pdf.ln(3)
+                
+                # Informacja o ograniczeniu
+                if len(processes) > 10:
+                    pdf.ln(5)
+                    pdf.set_font(font_family, "I", size=8)
+                    limit_text = safe_text(f"Pokazano 10 z {len(processes)} procesów. Pełna lista dostępna w aplikacji.")
+                    pdf.cell(0, 6, limit_text, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                
+                # Stopka
+                pdf.ln(5)
+                pdf.set_font(font_family, "", size=8)
+                footer_text = safe_text(prepare_text_for_pdf(footer, 100))
+                pdf.cell(0, 6, footer_text, new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
+                
+                # Generujemy PDF do pamięci
+                pdf_output = io.BytesIO()
+                pdf_bytes = pdf.output()  # Nowa wersja fpdf2 zwraca bytes bezpośrednio
+                pdf_output.write(pdf_bytes)
+                pdf_output.seek(0)
+                
+                st.success("✅ PDF wygenerowany pomyślnie!")
+                
+                # Przycisk do pobrania
+                st.download_button(
+                    "📄 Pobierz PDF", 
+                    pdf_output.getvalue(), 
+                    file_name="Lista_przeanalizowanych_procesow.pdf", 
+                    mime="application/pdf"
+                )
+                
+            except Exception as e:
+                st.error(f"❌ Błąd generowania PDF: {str(e)}")
+                logger.error(f"PDF_ERROR: {str(e)}")
+                
+                # Fallback - prosty tekst
+                st.info("💡 Alternatywnie możesz skopiować dane jako tekst:")
+                text_content = f"{header}\n\n"
+                for i, p in enumerate(processes, 1):
+                    text_content += f"{i}. {p.get('title','')}\n"
+                    text_content += f"Opis: {p.get('description','')[:200]}...\n"
+                    text_content += f"Analiza AI: {p.get('ai_analysis','')[:200]}...\n\n"
+                text_content += f"\n{footer}"
+                
+                st.text_area("Zawartość raportu:", text_content, height=300)
+    
+    with col2:
+        # Uproszczona sekcja kopiowania do schowka - tylko przyciski
+        text_to_copy = generate_text_content()
+        
+        # Przycisk do pokazania tekstu
+        if st.button("📋 Pokaż tekst do skopiowania", help="Wyświetl pełny tekst raportu"):
+            # CSS do kontroli szerokości pola tekstowego
+            st.markdown("""
+            <style>
+            .stTextArea > div > div > textarea {
+                font-family: 'Source Code Pro', monospace;
+                font-size: 12px;
+                line-height: 1.4;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            
+            # Pole tekstowe z pełnym tekstem - bez dodatkowych instrukcji
+            st.text_area(
+                "Tekst raportu:",
+                text_to_copy,
+                height=400,
+                key="copy_text_area"
+            )
+        
+        # Przycisk pobierania jako plik tekstowy - bez nagłówka
+        st.download_button(
+            "📄 Pobierz jako .txt",
+            text_to_copy,
+            file_name="Lista_przeanalizowanych_procesow.txt",
+            mime="text/plain"
+        )
 
 def initialize_database():
     """Inicjalizuje bazę danych, jeśli tabele nie istnieją"""

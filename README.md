@@ -63,38 +63,90 @@ Aplikacja: `http://localhost:8501`
 
 - ✅ **Logowanie** - Supabase Auth
 - ✅ **Dodaj proces** - Formularz: nazwa + opis
-- ✅ **Analiza AI** - ChatGPT-4o analizuje proces
+- ✅ **Ultra wnikliwa analiza AI** - 3 poziomy głębokości z wyszukiwaniem internetowym
+- ✅ **Kontekst firmy** - Wielkość, branża, budżet dla spersonalizowanych rekomendacji
+- ✅ **Branżowe szablony** - Specjalistyczne integracje dla różnych sektorów
 - ✅ **Lista procesów** - Wszystkie procesy użytkownika
+- ✅ **Edycja procesów** - Modyfikuj nazwę, opis i analizę AI
 - ✅ **Usuwanie** - Usuń niepotrzebne procesy
+- ✅ **Export PDF** - Generuj raport z przeanalizowanymi procesami
+- ✅ **Kopiuj do schowka** - Skopiuj pełny tekst raportu jednym kliknięciem
 - ✅ **CI/CD** - Automatyczne testy i deploy
 
-**To wszystko!** Ultra-proste MVP z pełną automatyzacją.
+**To wszystko!** Ultra-proste MVP z pełną automatyzacją i zarządzaniem procesami.
+
+## Nowe funkcjonalności
+
+### 🤖 Ultra wnikliwa analiza AI
+
+#### 3 poziomy głębokości analizy:
+- **Podstawowa (szybka)** - Szybka rekomendacja w 5 punktach
+- **Pogłębiona (z wyszukiwaniem)** - Szczegółowa analiza z aktualnym badaniem rynku
+- **Ekspercka (pełna analiza)** - Najgłębsza analiza z 8-tygodniowym planem wdrożenia
+
+#### Kontekst firmy:
+- **Wielkość firmy:** 1-10, 11-50, 51-200, 200+ osób
+- **Branża:** IT, E-commerce, Księgowość, Marketing, Logistyka i inne
+- **Budżet:** od 500 zł/mies do 5000+ zł/mies
+
+#### Branżowe szablony integracji:
+- **E-commerce:** Allegro, Amazon, BaseLinker, Shopify
+- **Księgowość:** iFirma, Wfirma, SAP, JPK, US, ZUS
+- **Marketing:** Facebook Ads, Google Ads, MailChimp, HubSpot
+- **IT:** GitHub, Jira, Slack, CI/CD, monitoring
+- **Logistyka:** WMS, TMS, API kurierów
+- I wiele innych...
+
+### 📝 Edycja procesów
+- Przycisk "✏️ Edytuj" obok każdego procesu
+- Możliwość modyfikacji nazwy, opisu i analizy AI
+- Intuicyjny formularz z przyciskami "Zapisz" i "Anuluj"
+
+### 📄 Export do PDF
+- Przycisk "📄 Pobierz PDF" generuje raport ze wszystkich procesów
+- Zawiera szczegółowe opisy i analizy AI
+- Automatyczna konwersja polskich znaków dla kompatybilności
+- Nazwa pliku: `Lista_przeanalizowanych_procesow.pdf`
+
+### 📋 Kopiowanie do schowka
+- Przycisk "📋 Kopiuj do schowka" obok przycisku PDF
+- Generuje pełny tekst raportu ze wszystkich procesów (nie tylko 10 jak PDF)
+- Zachowuje polskie znaki i emoji w oryginalnej formie
+- Dwie opcje kopiowania:
+  - **st.code** - z wbudowanym przyciskiem kopiowania
+  - **text_area** - zaznacz tekst i Ctrl+C
+- Zawiera nagłówek, wszystkie procesy z opisami i analizami AI, stopkę i datę
 
 ## Technologia
 
 - **Frontend:** Streamlit (1 plik)
 - **Backend:** Python funkcje
 - **Baza:** Supabase PostgreSQL
-- **AI:** OpenAI ChatGPT-4o
+- **AI:** OpenAI ChatGPT-4o z dostępem do internetu
+- **PDF:** fpdf2 z obsługą Unicode
 - **Deploy:** Streamlit Cloud
 
 ## Struktura
 ```
 smartflowai/
-├── streamlit_app.py      # Cała aplikacja (200 linii)
-├── requirements.txt      # 4 biblioteki
-├── test_app.py          # Podstawowe testy
-├── README.md            # Ta dokumentacja
-├── .env.example         # Przykład konfiguracji
-├── .gitignore           # Ignorowane pliki
-└── .github/workflows/   # CI/CD
-    ├── ci.yml           # Główny pipeline
-    └── pr.yml           # Pull request checks
+├── streamlit_app.py           # Cała aplikacja (400+ linii)
+├── requirements.txt           # 5 bibliotek (dodano fpdf2)
+├── test_app.py               # Podstawowe testy
+├── test_utf8.py              # Testy kodowania UTF-8
+├── test_enhanced_analysis.py # Testy ulepszonych funkcji AI
+├── README.md                 # Ta dokumentacja
+├── .env.example              # Przykład konfiguracji
+├── .gitignore                # Ignorowane pliki
+└── .github/workflows/        # CI/CD
+    ├── ci.yml                # Główny pipeline
+    └── pr.yml                # Pull request checks
 ```
 
 ## Testowanie
 ```bash
-pytest test_app.py -v
+pytest test_app.py -v                    # Podstawowe testy
+pytest test_utf8.py -v                   # Test kodowania UTF-8
+python test_enhanced_analysis.py         # Test ulepszonych funkcji AI
 ```
 
 ## CI/CD (GitHub Actions)
@@ -131,15 +183,35 @@ Automatyczny pipeline który:
 2. **Dodaj proces:** 
    - Nazwa: "Wystawianie faktur"
    - Opis: "Ręcznie tworzę faktury w Excelu, sprawdzam dane klientów, wysyłam mailem..."
-3. **Kliknij "Analizuj przez AI"**
-4. **Otrzymaj rekomendację:**
+3. **Wybierz opcje analizy:**
+   - Głębokość: "Pogłębiona (z wyszukiwaniem)"
+   - Wielkość firmy: "11-50 osób"
+   - Branża: "Księgowość"
+   - Budżet: "500-2000 zł/mies"
+4. **Kliknij "Analizuj przez AI"**
+5. **Otrzymaj szczegółową rekomendację:**
    ```
-   OCENA: 8/10
-   PROBLEM: Ręczne wprowadzanie danych
-   ROZWIĄZANIE: Zapier + InvoiceNinja
-   OSZCZĘDNOŚCI: 15 godzin miesięcznie
-   WDROŻENIE: 1. Konfiguracja InvoiceNinja 2. Połączenie przez Zapier
+   🔍 ANALIZA PROCESU
+   [Dekompozycja na kroki z czasami]
+   
+   🛠️ REKOMENDOWANE ROZWIĄZANIE
+   Narzędzie główne: iFirma + Zapier
+   Stopień automatyzacji: 85%
+   
+   💰 INWESTYCJA
+   Koszt wdrożenia: 2000 zł jednorazowo
+   Koszt miesięczny: 150 zł/mies.
+   
+   ⏱️ OSZCZĘDNOŚCI
+   Czas: 20 godzin miesięcznie → 3 godziny (redukcja o 85%)
+   ROI: 300% zwrot w 4 miesięcy
+   
+   📋 PLAN WDROŻENIA (6 tygodni)
+   [Szczegółowy harmonogram]
    ```
+6. **Edytuj proces:** Kliknij "✏️ Edytuj" aby zmodyfikować dane
+7. **Pobierz PDF:** Kliknij "📄 Pobierz PDF" aby wygenerować raport
+8. **Kopiuj do schowka:** Kliknij "📋 Kopiuj do schowka" aby skopiować pełny tekst
 
 ## Rozwiązywanie problemów
 
@@ -149,6 +221,10 @@ Automatyczny pipeline który:
 
 **Błąd bazy:** Wykonaj SQL z sekcji "Baza danych"
 
+**Błąd PDF:** Sprawdź czy fpdf2 jest zainstalowane: `pip install fpdf2`
+
+**Błąd analizy AI:** Sprawdź połączenie internetowe (GPT-4o wymaga dostępu do sieci)
+
 ## Autor
 
 **Dariusz Gąsior** - Projekt na zaliczenie kursu 10xDevs  
@@ -156,7 +232,8 @@ GitHub: [@emielregis2](https://github.com/emielregis2/SmartFlowAI)
 
 ---
 
-**Projekt wykonany w 2 dni!** ⚡
+**Projekt wykonany w 2 dni!** ⚡  
+**Rozszerzony o zaawansowane funkcje AI dzięki współpracy z Claude Sonnet 4** 🤖
 
 ---
 

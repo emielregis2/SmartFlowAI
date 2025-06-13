@@ -1,0 +1,50 @@
+# Przyk³ad 1: Skomplikowany proces ksiêgowania
+
+## Proces do analizy przez SmartFlowAI
+
+### Nazwa procesu:
+**Comiesiêczne ksiêgowanie dokumentów kosztowych i przychodowych**
+
+### Opis procesu:
+Co miesi¹c muszê przetworzyæ wszystkie dokumenty finansowe naszej firmy konsultingowej (45 osób). Proces zajmuje mi obecnie ca³y tydzieñ i sk³ada siê z nastêpuj¹cych kroków:
+
+**DZIEÑ 1-2: ZBIERANIE I SORTOWANIE DOKUMENTÓW**
+Odbieram dokumenty z ró¿nych Ÿróde³ - czêœæ przychodzi mailem (faktury PDF od dostawców), czêœæ dostajemy w wersji papierowej (paragony, bilety komunikacji publicznej, faktury za media), a czêœæ muszê pobraæ z ró¿nych portali (US, ZUS, banki). Mamy 3 konta bankowe w ró¿nych bankach, wiêc logujê siê do PKO, mBanku i Millennium ¿eby pobraæ wyci¹gi. Z US pobieramy JPK klientów, z ZUS - dokumenty sk³adkowe. Wszystko drukujê i uk³adam w segregatorach wed³ug kategorii: faktury kosztowe, faktury przychodowe, dokumenty bankowe, paragony, dokumenty kadrowe i ZUS. Czêsto muszê dzwoniæ do pracowników bo przysy³aj¹ zdjêcia paragonów w z³ej jakoœci lub zapominaj¹ o niektórych wydatkach.
+
+**DZIEÑ 3: WERYFIKACJA I KATEGORYZACJA** 
+Ka¿dy dokument sprawdzam pod k¹tem poprawnoœci (czy mamy wszystkie dane do odliczenia VAT, czy s¹ w³aœciwe stemple, czy faktury maj¹ poprawne nasze dane). Dokumenty które nie spe³niaj¹ wymogów odk³adam i wysy³am maile do kontrahentów o korekty. Ka¿dy dokument przypisujê do w³aœciwej kategorii ksiêgowej - mamy oko³o 150 ró¿nych kont ksiêgowych. Faktury od klientów przypisujê do konkretnych projektów (mamy aktualnie 23 aktywne projekty). Przy tym muszê sprawdzaæ umowy, ¿eby upewniæ siê czy faktura jest zgodna z ustaleniami. Dla dokumentów zagranicznych muszê przeliczyæ kwoty wed³ug kursu NBP z dnia transakcji.
+
+**DZIEÑ 4-5: WPROWADZANIE DO SYSTEMU**
+Wszystkie dane wprowadzam rêcznie do programu Comarch Optima. Dla ka¿dego dokumentu muszê wpisaæ: datê, numer, kontrahenta (czêsto sprawdzam czy jest ju¿ w bazie, jeœli nie - zak³adam nowego), kwoty netto i brutto, stawkê VAT, konto ksiêgowe, centrum kosztów, projekt. Przy fakturach sprzeda¿owych dodatkowo wprowadzam terminy p³atnoœci i wysy³am je przez system do klientów. Sprawdzam czy wszystkie faktury maj¹ przypisane w³aœciwe kategorie dla JPK. Program czêsto siê wiesza, szczególnie przy wiêkszych fakturach z wieloma pozycjami.
+
+**DZIEÑ 6: KONTROLA I RAPORTY**
+Robiê bilans próbny i sprawdzam czy siê wszystko zgadza. Porównujê salda kont bankowych w systemie z rzeczywistymi saldami z banków. Generam raport VAT-7 i sprawdzam czy sumy siê zgadzaj¹. Przygotowujê dokumenty dla biura rachunkowego - eksportujê JPK_VAT, JPK_FA, zestawienie obrotów i sald. Sprawdzam rozliczenia z ZUS czy sk³adki zosta³y prawid³owo naliczone. Czêsto w tym momencie znajdujê b³êdy i muszê wracaæ do poprawek w systemie.
+
+**DZIEÑ 7: FINALIZACJA I ARCHIWIZACJA**
+Drukujê wszystkie raporty, podpisujê i skanuje dla archiwum cyfrowego. Faktury papierowe wk³adam do segregatorów, cyfrowe zapisujê w folderach na serwerze wed³ug ustalonej struktury: rok/miesi¹c/typ dokumentu. Wysy³am raporty do dyrektora finansowego i biura rachunkowego. Przygotowujê mailowy raport podsumowuj¹cy miesi¹c z kluczowymi wskaŸnikami. Tworzê backup danych na zewnêtrznym dysku.
+
+**DODATKOWE KOMPLIKACJE:**
+- Ró¿ne formaty dokumentów (PDF, JPG, papier, XML) 
+- Dokumenty w jêzyku angielskim od klientów zagranicznych
+- Koniecznoœæ sprawdzania statusu VAT UE dla kontrahentów zagranicznych
+- Reklamacje i korekty faktur które wp³ywaj¹ po terminie
+- Uzgadnianie rozbie¿noœci w p³atnoœciach klientów
+- Obs³uga zaliczek i przedp³at
+- Rozliczanie delegacji s³u¿bowych z paragonigiami z ró¿nych krajów
+- Przestoje w systemach bankowych lub Comarch które wyd³u¿aj¹ proces
+
+Ca³y proces poch³ania mi oko³o 50-60 godzin miesiêcznie i jestem jedyn¹ osob¹ w firmie która to wszystko ogarniam. Czêsto muszê zostaæ po godzinach ¿eby nadrobiæ zaleg³oœci, szczególnie gdy s¹ jakieœ komplikacje. Szef ci¹gle pyta czy da siê to jakoœ przyspieszyæ bo zbli¿amy siê do terminu rozliczenia VAT.
+
+---
+
+## Dodatkowe informacje do kontekstu:
+
+**Wielkoœæ firmy:** 45 osób  
+**Bran¿a:** Konsulting IT  
+**Miesiêczne obroty:** ~500K PLN  
+**Iloœæ dokumentów:** ~300 fakt?? kosztowych, ~80 faktur przychodowych, ~200 paragonów miesiêcznie  
+**Obecne narzêdzia:** Comarch Optima, Excel, Gmail  
+**Bud¿et na automatyzacjê:** do 3000 z³/miesi¹c  
+**G³ówne problemy:** czasoch³onnoœæ, podatnoœæ na b³êdy, brak backup osoby
+
+Ten proces ma ogromny potencja³ automatyzacji! ??

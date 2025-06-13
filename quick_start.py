@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Plik: quick_start.py
 #!/usr/bin/env python3
 # quick_start.py - Skrypt szybkiego startu dla SmartFlowAI

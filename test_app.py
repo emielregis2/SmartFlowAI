@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Plik: test_app.py
 # test_app.py - Proste testy SmartFlowAI (2 dni MVP)
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 check_user.py - Skrypt do sprawdzania użytkowników w bazie danych
 

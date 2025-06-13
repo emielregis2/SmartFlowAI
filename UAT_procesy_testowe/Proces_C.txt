@@ -1,0 +1,115 @@
+# Przyk³ad 3: Produkcja - Planowanie produkcji i zamówienia materia³ów
+
+## Proces do analizy przez SmartFlowAI
+
+### Nazwa procesu:
+**Tygodniowe planowanie produkcji mebli na zamówienie i zarz¹dzanie dostawami materia³ów**
+
+### Opis procesu:
+Jestem w³aœcicielem ma³ej manufaktury mebli na zamówienie (15 pracowników - 8 stolarzy, 2 tapicerzy, 2 lakierników, 1 kierownik, 1 ksiêgowa + ja). Produkujemy ekskluzywne meble - kuchnie, szafy, sofy. Ka¿de zamówienie jest unikalne, robione na wymiar klienta. Planowanie produkcji to mój koszmar - robiê to sam ka¿dego poniedzia³ku i zajmuje mi ca³y dzieñ, a i tak czêsto siê myœmy.
+
+**PONIEDZIA£EK RANO: ANALIZA ZAMÓWIEÑ**
+Zaczynam od przegl¹du wszystkich aktywnych zamówieñ. Mam je w 3 miejscach: zeszyt papierowy (stare nawyki), Excel "Zamówienia 2025" i czasem w mailach z klientami. Ka¿de zamówienie ma inny termin realizacji, inn¹ specyfikacjê, inne materia³y. Muszê sprawdziæ co obieca³em klientom i czy dotrzymujemy terminów. Czêsto siê okazuje, ¿e obieca³em dostawê "za 3 tygodnie" nie sprawdziwszy czy mamy wszystkie materia³y.
+
+Robiê sobie rêczn¹ listê aktywnych projektów:
+- Kuchnia dla Kowalskich (termin: 15.02) - brakuje frontów MDF
+- Szafa do sypialni Nowak (termin: 20.02) - wszystko mamy  
+- Komplet mebli biurowych firma ABC (termin: 28.02) - nie zamówi³em jeszcze klamek
+- Sofa naro¿na Wiœniewscy (termin: 10.03) - czekam na tkaninê od klienta
+- itd... (aktualnie 18 zamówieñ w ró¿nych fazach)
+
+**PONIEDZIA£EK PRZED PO£UDNIEM: SPRAWDZANIE MATERIA£ÓW**
+Idê do magazynu z notatnikiem i sprawdzam co mamy na stanie. Liczê rêcznie:
+- P³yty MDF 18mm - zosta³o 12 arkuszy  
+- P³yty wiórowe laminowane - 8 arkuszy ró¿nych kolorów
+- Drewno sosnowe - oko³o 2m3 (szacujê na oko)
+- Klamki, zawiasy, prowadnice - sprawdzam pude³ka
+- Kleje, lakiery, œrodki ochronne - sprawdzam etykiety z datami
+
+Problem: nie mam systemu magazynowego, wiêc nie wiem ile zu¿ywamy dziennie ka¿dego materia³u. Wszystko szacujê "na czucie". Czasem siê okazuje, ¿e w œrodê zostaje nam lakier na 2 dni pracy, a najbli¿sza dostawa dopiero w przysz³ym tygodniu.
+
+**PONIEDZIA£EK POPO£UDNIE: USTALANIE HARMONOGRAMU PRODUKCJI**
+Na kartkach A4 rysujê plan na ca³y tydzieñ. Mam tabele dla ka¿dego pracownika:
+
+STANIS£AW (stolarz senior):
+- Poniedzia³ek: dokoñczenie szafki Nowak
+- Wtorek-œroda: krojenie elementów do kuchni Kowalski  
+- Czwartek-pi¹tek: monta¿ kuchni Kowalski
+
+JANUSZ (stolarz):
+- Poniedzia³ek: szlifowanie frontów dla ABC
+- itp...
+
+Problem: nie uwzglêdniam czasem ¿e Stanis³aw jest lepszy w krojeniu, a Janusz w monta¿u. Albo ¿e lakierowalnia mo¿e przyj¹æ max 3 drzwiczki dziennie, a ja planujê 8. Sprawdzanie czy plan jest realny to osobny proces...
+
+**WTOREK: ZAMÓWIENIA MATERIA£ÓW**
+Na podstawie moich obliczeñ z poniedzia³ku dzwoniê do dostawców:
+
+**Dostawca A (p³yty):** Dzwoniê i mówiê "potrzebujê 20 arkuszy MDF 18mm na czwartek". Oni sprawdzaj¹ dostêpnoœæ, podaj¹ cenê (ró¿ne ka¿dego tygodnia!), ustalam transport. Nie mam umowy ramowej, wiêc ka¿de zamówienie to osobna negocjacja ceny.
+
+**Dostawca B (okucia):** Przegl¹damy katalog przez telefon, ustalamy iloœci, sprawdzamy czy maj¹ na magazynie. Czêsto okazuje siê ¿e prowadnic które potrzebujê nie ma i muszê czekaæ 2 tygodnie na import z Niemiec.
+
+**Dostawca C (lakiery):** Tu jest najgorzej - ka¿dy kolor lakieru to inne zamówienie, ró¿ne minimalne iloœci, ró¿ne terminy dostawy. Czasem zamawiam 5L lakieru za 300 z³ ¿eby pomalowaæ jedn¹ komodê.
+
+Wszystko zapisujê w zeszycie: kto, co, ile, kiedy dostarczy, ile kosztuje. Przy 6-8 dostawcach to jest chyba 20 telefonów tygodniowo.
+
+**ŒRODA-CZWARTEK: POTWIERDZENIA I ŒLEDZENIE**
+Dzwoniê do ka¿dego dostawcy ¿eby potwierdziæ czy dostawa jest na czas:
+- "Czy ta p³yta bêdzie na pewno w czwartek rano?"
+- "A te klamki co mia³y byæ wczoraj?"  
+- "Kiedy przyjedzie lakier? Moi ludzie ju¿ jutro bêd¹ potrzebowaæ..."
+
+Czêsto okazuje siê ¿e dostawa siê opóŸnia i muszê przestawiaæ ca³y plan produkcji. Wtedy dzwoniê do klientów ¿eby przesun¹æ terminy. Czasem muszê wys³aæ Janusza do Castoramy po pilne rzeczy (dro¿ej ale dostêpne od rêki).
+
+**PI¥TEK: ROZLICZENIA I PLANOWANIE NASTÊPNEGO TYGODNIA**
+Sprawdzam faktury od dostawców, porównujê z moimi notatkami czy przywieŸli wszystko. Czêsto s¹ rozbie¿noœci - zamówi³em 20 arkuszy, a faktura jest za 22. Muszê dzwoniæ i ustalaæ. 
+
+Robiê rêczne podsumowanie tygodnia:
+- Które zamówienia zosta³y ukoñczone
+- Które siê opóŸni³y i dlaczego  
+- Ile zosta³o materia³ów na magazynie
+- Ile wydaliœmy na materia³y (licze kalkulator w rêku)
+
+**WEEKEND: KRYZYSOWE TELEFONY**
+W sobotê zwykle dzwoni 2-3 klientów z pytaniami "czy moja kuchnia bêdzie gotowa na umówionym terminie?". Muszê iœæ do warsztatu, sprawdziæ rzeczywisty postêp prac, oszacowaæ czy zd¹¿ymy. Czêsto okazuje siê ¿e nie i muszê negocjowaæ nowy termin.
+
+W niedzielê planuje co robiæ w poniedzia³ek - czyli znowu to samo...
+
+**NAJWIÊKSZE PROBLEMY:**
+- Brak systemu magazynowego - nie wiem ile czego zu¿ywamy
+- Brak historii dostaw - nie pamiêtam ile trwa dostawa od ró¿nych dostawców  
+- Planowanie produkcji "na czucie" - czêsto siê myœlê w czasach
+- Ka¿de zamówienie materia³ów to 30 minut telefonu
+- Brak danych o kosztach - nie wiem czy projekt jest rentowny
+- Przestoje produkcji gdy brakuje materia³ów
+- Klienci niezadowoleni z opóŸnieñ
+- Stress z nieustannym ¿onglowaniem terminami
+- Nadmierne zapasy jednych rzeczy, braki innych
+- Czasem kupujemy materia³y 2x dro¿ej w "pilnych" zakupach
+
+**STATYSTYKI TYGODNIOWE:**
+- 18 aktywnych zamówieñ jednoczeœnie
+- 6-8 dostawców materia³ów  
+- 15-20 telefonów w sprawie dostaw
+- 8-12 godzin planowania i koordynacji
+- Przestoje z powodu braku materia³ów: 5-10% czasu pracy
+- Nadgodziny z powodu Ÿle zaplanowanych terminów: 20% tygodnia
+- OpóŸnienia w realizacji: 30% zamówieñ  
+- Dodatkowe koszty "pilnych" zakupów: ~2000 z³ miesiêcznie
+
+W sezonie (jesieñ-zima) mamy 25+ zamówieñ jednoczeœnie i wtedy to ju¿ totalny chaos. ¯ona mówi ¿eby wzi¹æ kogoœ do pomocy, ale nikt nie zna naszych dostawców i specyfiki ka¿dego materia³u. Marzy mi siê jakiœ system który by mi powiedzia³ "zamów to i to, bo za 3 dni ci siê skoñczy"...
+
+---
+
+## Dodatkowe informacje do kontekstu:
+
+**Wielkoœæ firmy:** 15 osób  
+**Bran¿a:** Produkcja mebli na zamówienie  
+**Miesiêczne obroty:** ~300K PLN  
+**Iloœæ projektów:** 18-25 jednoczeœnie  
+**Iloœæ dostawców:** 8 g³ównych + kilku dodatkowych  
+**Obecne narzêdzia:** Excel, zeszyt papierowy, telefon, kalkulator  
+**Bud¿et na automatyzacjê:** do 2000 z³/miesi¹c  
+**G³ówne problemy:** chaos organizacyjny, brak widocznoœci magazynu, rêczne planowanie, przestoje
+
+Klasyczny przyk³ad ma³ej firmy produkcyjnej której potrzeba systemu ERP! ??

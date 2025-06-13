@@ -1,0 +1,70 @@
+# Przyk³ad 2: E-commerce - Obs³uga zwrotów i reklamacji
+
+## Proces do analizy przez SmartFlowAI
+
+### Nazwa procesu:
+**Obs³uga zwrotów, reklamacji i wymiany produktów w sklepie internetowym**
+
+### Opis procesu:
+Jestem kierownikiem dzia³u obs³ugi klienta w firmie e-commerce sprzedaj¹cej elektronikê i AGD (100 pracowników, 15 000 zamówieñ miesiêcznie). Obs³uga zwrotów to mój najwiêkszy ból g³owy - zajmuje 4 osobom pe³ny etat i ci¹gle mamy zaleg³oœci. Oto jak wygl¹da ca³y proces:
+
+**FAZA 1: ZG£ASZANIE ZWROTÓW PRZEZ KLIENTÓW**
+Klienci zg³aszaj¹ zwroty przez ró¿ne kana³y - 40% przez formularz na stronie, 30% mailem na info@sklep.pl, 20% przez telefon, 10% przez Facebook Messenger. Ka¿de zg³oszenie trafia do innej skrzynki/systemu. Marta codziennie rano sprawdza wszystkie te kana³y i przepisuje zg³oszenia do Excela. Musi sprawdziæ czy zamówienie rzeczywiœcie istnieje (loguje siê do systemu BaseLinker), czy jest w terminie zwrotu (14 dni), czy produkt kwalifikuje siê do zwrotu. Czêsto klienci podaj¹ b³êdne numery zamówieñ lub chc¹ zwróciæ produkty sprzed roku.
+
+**FAZA 2: WERYFIKACJA I AUTORYZACJA**
+Ka¿dy zwrot musi sprawdziæ Tomek - nasz senior. Weryfikuje czy powód zwrotu jest uzasadniony, czy produkt nie by³ u¿ywany (na podstawie opisu od klienta), czy klient nie nadu¿ywa polityki zwrotów (sprawdza historiê w systemie - niektórzy zwracaj¹ po 10 produktów miesiêcznie). Dla produktów dro¿szych ni¿ 2000 z³ musi dodatkowo sprawdziæ czy mamy jeszcze gwarancjê od dostawcy. Ka¿d¹ decyzjê wpisuje rêcznie do Excela i wysy³a mail do klienta z instrukcjami.
+
+**FAZA 3: GENEROWANIE ETYKIET I KOMUNIKACJA**
+Kasia generuje etykiety zwrotne - loguje siê do systemu InPost, DHL i Poczty Polskiej (ró¿ni klienci wol¹ ró¿ne opcje). Musi rêcznie wpisaæ adres klienta, swój adres, wymiary paczki (szacuje na oko), wagê (te¿ szacuje). Wysy³a klientowi mailem etykietê wraz z instrukcj¹ pakowania. Czêsto klienci dzwoni¹ z pytaniami bo nie wiedz¹ jak przykleiæ etykietê lub gdzie oddaæ paczkê. Co drugi dzieñ musi sprawdzaæ trackingu czy paczki s¹ w drodze.
+
+**FAZA 4: ODBIÓR I KONTROLA JAKOŒCI**
+Jak paczka dotrze do naszego magazynu, Pawe³ z magazynu otwiera j¹ i sprawdza stan produktu. Robi zdjêcia, testuje czy dzia³a, sprawdza czy ma wszystkie akcesoria. Wype³nia papierowy protokó³ kontroli (5 stron A4!). Jeœli produkt jest OK - odk³ada na pó³kê "do ponownej sprzeda¿y". Jeœli uszkodzony - na pó³kê "reklamacje do dostawcy". Jeœli bardzo zniszczony - na pó³kê "utylizacja". Protokó³ nosi do biura i oddaje Marcie.
+
+**FAZA 5: ROZLICZENIA FINANSOWE**
+Marta na podstawie protoko³u decyduje o zwrocie pieniêdzy. Musi sprawdziæ jak klient p³aci³ - kart¹ (zwrot przez PayU), przelewem (rêczny przelew z banku), przy odbiorze (zwrot gotówk¹ przez kuriera - bardzo skomplikowane). Dla p³atnoœci kart¹ loguje siê do PayU i robi zwrot. Dla przelewów eksportuje plik do banku. Dla p³atnoœci gotówkowych musi zamówiæ kuriera z gotówk¹. Ka¿dy zwrot wpisuje do Excela z kwot¹ i sposobem zwrotu.
+
+**FAZA 6: OBS£UGA REKLAMACJI GWARANCYJNYCH**
+Produkty uszkodzone wysy³amy do serwisów producenta. Marta musi znaleŸæ w³aœciwy serwis (mamy 50+ dostawców, ka¿dy ma inne procedury), wype³niæ protokó³ reklamacyjny, opisaæ problem, wygenerowaæ etykietê. Sprawdza status reklamacji co 3 dni dzwoni¹c do serwisu. Jak produkt wraca - Pawe³ sprawdza czy naprawiony, aktualizuje stan w systemie. Jeœli nie da siê naprawiæ - wysy³amy klientowi nowy produkt lub zwracamy pieni¹dze.
+
+**FAZA 7: AKTUALIZACJA STANÓW MAGAZYNOWYCH**
+Po ca³ym procesie Pawe³ musi rêcznie zaktualizowaæ stany magazynowe w BaseLinker. Produkty OK dodaje z powrotem do sprzeda¿y (zmienia status z "zwrócony" na "dostêpny"). Produkty uszkodzone oznacza jako "serwis" lub "utylizacja". Czêsto robi b³êdy bo system jest nieintuicyjny. Co tydzieñ Marta musi robiæ inwentaryzacjê Excela z systemem magazynowym bo siê nie zgadzaj¹ liczby.
+
+**FAZA 8: RAPORTOWANIE I ANALIZY**
+Na koniec miesi¹ca Marta kompiluje wszystkie dane z Exceli ¿eby przygotowaæ raport dla szefa: ile zwrotów, jakie powody, ile kosztowa³y, które produkty najczêœciej zwracane. Musi rêcznie liczyæ procenty, rysowaæ wykresy w Excelu. Raport zajmuje jej ca³y dzieñ bo dane s¹ porozrzucane w 5 ró¿nych plikach. Czêsto siê myœli w obliczeniach.
+
+**NAJWIÊKSZE PROBLEMY:**
+- Dane rozproszone w 10+ systemach/plikach
+- Brak automatycznych powiadomieñ o statusach
+- Rêczne przepisywanie tych samych danych
+- Klienci dzwoni¹ z pytaniami bo nie maj¹ aktualizacji statusu
+- B³êdy w rozliczeniach finansowych
+- Czas obs³ugi jednego zwrotu: 45 minut (przy prostych przypadkach)
+- Z³o¿one przypadki (reklamacje, wymiary) - nawet 3 godziny
+- Stres zespo³u przed œwiêtami gdy mamy 200% wiêcej zwrotów
+- Brak œledzenia kosztów logistycznych (ile wydajemy na etykiety)
+- Problemy z komunikacj¹ - klient nie wie czy jego zwrot zosta³ przyjêty
+
+**STATYSTYKI:**
+- 800-1200 zwrotów miesiêcznie (8% sprzeda¿y)
+- 200-300 reklamacji gwarancyjnych miesiêcznie  
+- Czas obs³ugi: 40h tygodniowo (4 osoby × 10h)
+- Œredni koszt obs³ugi jednego zwrotu: ~25 z³ (czas pracy + logistyka)
+- Najczêstsze powody: "nie spe³nia oczekiwañ" (30%), "zamówi³ przez pomy³kê" (25%), "produkt uszkodzony" (20%)
+- Czas zwrotu pieniêdzy: 7-14 dni (za d³ugo!)
+
+W szczycie sezonu (listopad-grudzieñ) mamy nawet 2000 zwrotów miesiêcznie i zespó³ pracuje w nadgodzinach. Szef ci¹gle pyta czy da siê to jakoœ zautomatyzowaæ bo obs³uga zwrotów kosztuje nas wiêcej ni¿ ca³a logistyka sprzeda¿owa...
+
+---
+
+## Dodatkowe informacje do kontekstu:
+
+**Wielkoœæ firmy:** 100 osób  
+**Bran¿a:** E-commerce (elektronika/AGD)  
+**Miesiêczne obroty:** ~2M PLN  
+**Iloœæ zamówieñ:** 15,000/miesi¹c  
+**Iloœæ zwrotów:** 800-1200/miesi¹c  
+**Obecne narzêdzia:** BaseLinker, PayU, Excel, ró¿ne systemy kurierskie  
+**Bud¿et na automatyzacjê:** do 5000 z³/miesi¹c  
+**G³ówne problemy:** czas obs³ugi, rozproszone dane, brak automatyzacji, b³êdy ludzkie
+
+Ogromny potencja³ do automatyzacji ca³ego workflow! ??
