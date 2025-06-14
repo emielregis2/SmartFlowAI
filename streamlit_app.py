@@ -153,13 +153,15 @@ def init_supabase():
         return MockSupabase()
     
     url = os.getenv("SUPABASE_URL")
-    key = os.getenv("SUPABASE_ANON_KEY")
+    # Użyj service_role key dla pełnych uprawnień (development mode)
+    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_ANON_KEY")
     
     # Fallback do secrets jeśli .env nie ma wartości
     if not url or not key:
         try:
             url = url or st.secrets.get("SUPABASE_URL", "")
-            key = key or st.secrets.get("SUPABASE_ANON_KEY", "")
+            # Najpierw spróbuj service_role, potem anon
+            key = key or st.secrets.get("SUPABASE_SERVICE_ROLE_KEY", "") or st.secrets.get("SUPABASE_ANON_KEY", "")
         except:
             pass
     
@@ -186,9 +188,20 @@ def init_openai():
         except:
             pass
     
-    if not api_key:
-        st.error("❌ Brak klucza OpenAI! Sprawdź .env lub secrets.toml")
-        st.stop()
+    # Sprawdź czy jest tryb demo
+    demo_mode = False
+    try:
+        demo_mode = st.secrets.get("DEMO_MODE", False)
+    except:
+        pass
+    
+    if not api_key or api_key == "sk-demo_key_placeholder":
+        if demo_mode:
+            st.info("🧪 Tryb demo - używam mock OpenAI (brak prawdziwego klucza API)")
+            return MockOpenAI()
+        else:
+            st.error("❌ Brak klucza OpenAI! Sprawdź .env lub secrets.toml")
+            st.stop()
     
     openai.api_key = api_key
     return openai
@@ -236,7 +249,7 @@ def analyze_with_ai(title: str, description: str, analysis_depth: str = "Pogłę
     
     # Modyfikacja promptu w zależności od głębokości analizy
     if analysis_depth == "Podstawowa (szybka)":
-    prompt = f"""
+        prompt = f"""
 Przeanalizuj ten proces biznesowy i podaj krótką rekomendację:
 
 PROCES: {title}
@@ -520,14 +533,42 @@ Znaczna redukcja czasu pracy manualnej i zwiększenie efektywności procesu.
 def save_process(title: str, description: str, ai_analysis: str):
     """Zapisuje proces do bazy danych"""
     try:
-        result = supabase.table('processes').insert({
-            'user_email': st.session_state.user,
+        # Znajdź user_id na podstawie emaila (fallback dla użytkowników testowych)
+        user_id = None
+        user_email = st.session_state.user
+        
+        # Mapowanie użytkowników testowych na UUID z bazy
+        test_user_mapping = {
+            "test@smartflowai.com": "550e8400-e29b-41d4-a716-446655440001",
+            "admin@smartflowai.com": "550e8400-e29b-41d4-a716-446655440002", 
+            "demo@smartflowai.com": "550e8400-e29b-41d4-a716-446655440003",
+            # Dodaj mapowanie dla błędnego emaila (fallback)
+            "test@smartflowai.pl": "550e8400-e29b-41d4-a716-446655440001"
+        }
+        
+        if user_email in test_user_mapping:
+            user_id = test_user_mapping[user_email]
+        else:
+            # Dla prawdziwych użytkowników - pobierz z auth
+            try:
+                user_result = supabase.table('users').select('id').eq('email', user_email).execute()
+                if user_result.data:
+                    user_id = user_result.data[0]['id']
+            except:
+                pass
+        
+        if not user_id:
+            logger.error(f"SAVE_PROCESS_ERROR: Nie można znaleźć user_id dla {user_email}")
+            return False
+            
+        result = supabase.table('business_processes').insert({
+            'user_id': user_id,
             'title': title,
             'description': description,
             'ai_analysis': ai_analysis
         }).execute()
         
-            return True
+        return True
     except Exception as e:
         logger.error(f"SAVE_PROCESS_ERROR: {str(e)}")
         return False
@@ -535,7 +576,35 @@ def save_process(title: str, description: str, ai_analysis: str):
 def get_processes():
     """Pobiera procesy użytkownika z bazy danych"""
     try:
-        result = supabase.table('processes').select('*').eq('user_email', st.session_state.user).order('created_at', desc=True).execute()
+        # Znajdź user_id na podstawie emaila
+        user_email = st.session_state.user
+        user_id = None
+        
+        # Mapowanie użytkowników testowych na UUID z bazy
+        test_user_mapping = {
+            "test@smartflowai.com": "550e8400-e29b-41d4-a716-446655440001",
+            "admin@smartflowai.com": "550e8400-e29b-41d4-a716-446655440002", 
+            "demo@smartflowai.com": "550e8400-e29b-41d4-a716-446655440003",
+            # Dodaj mapowanie dla błędnego emaila (fallback)
+            "test@smartflowai.pl": "550e8400-e29b-41d4-a716-446655440001"
+        }
+        
+        if user_email in test_user_mapping:
+            user_id = test_user_mapping[user_email]
+        else:
+            # Dla prawdziwych użytkowników - pobierz z auth
+            try:
+                user_result = supabase.table('users').select('id').eq('email', user_email).execute()
+                if user_result.data:
+                    user_id = user_result.data[0]['id']
+            except:
+                pass
+        
+        if not user_id:
+            logger.error(f"GET_PROCESSES_ERROR: Nie można znaleźć user_id dla {user_email}")
+            return []
+            
+        result = supabase.table('business_processes').select('*').eq('user_id', user_id).order('created_at', desc=True).execute()
         return result.data
     except Exception as e:
         logger.error(f"GET_PROCESSES_ERROR: {str(e)}")
@@ -544,14 +613,41 @@ def get_processes():
 def delete_process(process_id: int):
     """Usuwa proces z bazy danych"""
     try:
+        # Znajdź user_id na podstawie emaila
+        user_email = st.session_state.user
+        user_id = None
+        
+        # Mapowanie użytkowników testowych na UUID z bazy
+        test_user_mapping = {
+            "test@smartflowai.com": "550e8400-e29b-41d4-a716-446655440001",
+            "admin@smartflowai.com": "550e8400-e29b-41d4-a716-446655440002", 
+            "demo@smartflowai.com": "550e8400-e29b-41d4-a716-446655440003",
+            # Dodaj mapowanie dla błędnego emaila (fallback)
+            "test@smartflowai.pl": "550e8400-e29b-41d4-a716-446655440001"
+        }
+        
+        if user_email in test_user_mapping:
+            user_id = test_user_mapping[user_email]
+        else:
+            # Dla prawdziwych użytkowników - pobierz z auth
+            try:
+                user_result = supabase.table('users').select('id').eq('email', user_email).execute()
+                if user_result.data:
+                    user_id = user_result.data[0]['id']
+            except:
+                pass
+        
+        if not user_id:
+            return False
+        
         # Sprawdź czy proces należy do użytkownika
-        check_result = supabase.table('processes').select('id').eq('id', process_id).eq('user_email', st.session_state.user).execute()
+        check_result = supabase.table('business_processes').select('id').eq('id', process_id).eq('user_id', user_id).execute()
         
         if not check_result.data:
             return False
         
         # Usuń proces
-        result = supabase.table('processes').delete().eq('id', process_id).execute()
+        result = supabase.table('business_processes').delete().eq('id', process_id).execute()
         return True
     except Exception as e:
         logger.error(f"DELETE_PROCESS_ERROR: {str(e)}")
@@ -560,18 +656,44 @@ def delete_process(process_id: int):
 def update_process(process_id: int, title: str, description: str, ai_analysis: str):
     """Aktualizuje proces w bazie danych"""
     try:
+        # Znajdź user_id na podstawie emaila
+        user_email = st.session_state.user
+        user_id = None
+        
+        # Mapowanie użytkowników testowych na UUID z bazy
+        test_user_mapping = {
+            "test@smartflowai.com": "550e8400-e29b-41d4-a716-446655440001",
+            "admin@smartflowai.com": "550e8400-e29b-41d4-a716-446655440002", 
+            "demo@smartflowai.com": "550e8400-e29b-41d4-a716-446655440003",
+            # Dodaj mapowanie dla błędnego emaila (fallback)
+            "test@smartflowai.pl": "550e8400-e29b-41d4-a716-446655440001"
+        }
+        
+        if user_email in test_user_mapping:
+            user_id = test_user_mapping[user_email]
+        else:
+            # Dla prawdziwych użytkowników - pobierz z auth
+            try:
+                user_result = supabase.table('users').select('id').eq('email', user_email).execute()
+                if user_result.data:
+                    user_id = user_result.data[0]['id']
+            except:
+                pass
+        
+        if not user_id:
+            return False
+        
         # Sprawdź czy proces należy do użytkownika
-        check_result = supabase.table('processes').select('id').eq('id', process_id).eq('user_email', st.session_state.user).execute()
+        check_result = supabase.table('business_processes').select('id').eq('id', process_id).eq('user_id', user_id).execute()
         
         if not check_result.data:
             return False
         
         # Aktualizuj proces
-        result = supabase.table('processes').update({
+        result = supabase.table('business_processes').update({
             'title': title,
             'description': description,
-            'ai_analysis': ai_analysis,
-            'updated_at': 'now()'
+            'ai_analysis': ai_analysis
         }).eq('id', process_id).execute()
         
         return True
@@ -597,8 +719,9 @@ def show_login():
             st.info("""
             **Dostępne konta testowe:**
             
-            📧 **test@smartflowai.com** / test123
-            📧 **test@smartflow.pl** / test123456
+            📧 **test@smartflowai.com** / test123456
+            📧 **admin@smartflowai.com** / test123456
+            📧 **demo@smartflowai.com** / test123456
             """)
         
         col1, col2, col3 = st.columns([1, 1, 1])
@@ -620,8 +743,9 @@ def show_login():
                         except Exception as e:
                             # Fallback - użytkownicy testowi
                             test_users = {
-                                "test@smartflowai.com": "test123",
-                                "test@smartflow.pl": "test123456"
+                                "test@smartflowai.com": "test123456",
+                                "admin@smartflowai.com": "test123456",
+                                "demo@smartflowai.com": "test123456"
                             }
                             
                             if email in test_users and test_users[email] == password:
@@ -764,8 +888,8 @@ def show_processes_list():
                         st.session_state[f"editing_{process['id']}"] = True
                         st.rerun()
                 with col3:  # Maksymalnie po prawej stronie
-                if st.button(f"🗑️ Usuń", key=f"del_{process['id']}"):
-                    if delete_process(process['id']):
+                    if st.button(f"🗑️ Usuń", key=f"del_{process['id']}"):
+                        if delete_process(process['id']):
                             st.rerun()
                 
                 # Formularz edycji (jeśli aktywny)
@@ -899,7 +1023,7 @@ def show_new_process_form():
                 budget = st.selectbox(
                     "Budżet na automatyzację:", 
                     ["", "do 500 zł/mies", "500-2000 zł/mies", "2000-5000 zł/mies", "5000+ zł/mies"]
-            )
+                )
             
             if st.form_submit_button("🤖 Analizuj przez AI", type="primary"):
                 if not title or not description:
@@ -1047,8 +1171,8 @@ def show_pdf_summary_tab():
                     return ''.join(safe_chars)
                 
                 # Tworzymy PDF z obsługą Unicode
-        pdf = FPDF()
-        pdf.add_page()
+                pdf = FPDF()
+                pdf.add_page()
                 pdf.set_auto_page_break(auto=True, margin=15)
                 
                 # fpdf2 nie ma wbudowanej obsługi polskich znaków - używamy konwersji
@@ -1069,7 +1193,7 @@ def show_pdf_summary_tab():
                 pdf.set_font(font_family, "B", size=14)
                 header_text = safe_text(prepare_text_for_pdf(header, 100))
                 pdf.cell(0, 10, header_text, new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
-        pdf.ln(5)
+                pdf.ln(5)
                 
                 # Procesy - ograniczamy do pierwszych 10 dla lepszego przeglądu
                 display_processes = processes[:10] if len(processes) > 10 else processes
@@ -1089,7 +1213,7 @@ def show_pdf_summary_tab():
                     description = safe_text(prepare_text_for_pdf(p.get('description',''), 1500))  # Zwiększone z 500 do 1500
                     pdf.cell(0, 6, "Opis:", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                     pdf.multi_cell(0, 5, description)  # multi_cell dla długich tekstów
-            pdf.ln(2)
+                    pdf.ln(2)
                     
                     # Analiza AI - pełny tekst z wieloma liniami (zwiększony limit)
                     analysis = safe_text(prepare_text_for_pdf(p.get('ai_analysis',''), 2000))  # Zwiększone z 500 do 2000
@@ -1099,7 +1223,7 @@ def show_pdf_summary_tab():
                 
                 # Informacja o ograniczeniu
                 if len(processes) > 10:
-        pdf.ln(5)
+                    pdf.ln(5)
                     pdf.set_font(font_family, "I", size=8)
                     limit_text = safe_text(f"Pokazano 10 z {len(processes)} procesów. Pełna lista dostępna w aplikacji.")
                     pdf.cell(0, 6, limit_text, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
@@ -1177,39 +1301,22 @@ def show_pdf_summary_tab():
         )
 
 def initialize_database():
-    """Inicjalizuje bazę danych, jeśli tabele nie istnieją"""
+    """Sprawdza czy tabele istnieją - nie tworzy ich automatycznie"""
     try:
-        # Sprawdź czy tabela processes istnieje
+        # Sprawdź czy tabela business_processes istnieje
         try:
-            supabase.table('processes').select('id').limit(1).execute()
+            result = supabase.table('business_processes').select('id').limit(1).execute()
+            logger.info("Database tables are available")
+            return True
         except Exception as e:
             if "relation" in str(e) and "does not exist" in str(e):
-                # SQL do utworzenia tabeli
-                sql = """
-                CREATE TABLE IF NOT EXISTS processes (
-                    id BIGSERIAL PRIMARY KEY,
-                    user_email TEXT NOT NULL,
-                    title TEXT NOT NULL,
-                    description TEXT NOT NULL,
-                    ai_analysis TEXT,
-                    created_at TIMESTAMPTZ DEFAULT NOW()
-                );
-                
-                -- Dodaj Row Level Security dla prywatności danych
-                ALTER TABLE processes ENABLE ROW LEVEL SECURITY;
-                
-                -- Polityka - użytkownicy widzą tylko swoje procesy
-                CREATE POLICY IF NOT EXISTS "Users manage own" ON processes 
-                FOR ALL USING (auth.email() = user_email);
-                """
-                
-                # Wykonaj SQL (w prawdziwym środowisku powinno się używać migracji)
-                supabase.sql(sql).execute()
+                logger.warning("Database tables don't exist. Please run the SQL setup script in Supabase dashboard.")
+                # Nie tworzymy tabel automatycznie - użytkownik musi uruchomić skrypt SQL
+                return False
             else:
-                raise e
+                logger.error(f"Database connection error: {str(e)}")
+                return False
                 
-        return True
-        
     except Exception as e:
         logger.error(f"DB_INIT_ERROR: {str(e)}")
         return False
