@@ -11,7 +11,7 @@
 
 🚀 **Wersja produkcyjna** - bez debugowania, zoptymalizowana wydajność, tylko logi błędów.
 
-Projekt na zaliczenie kursu 10xDevs - wykonany w 2 dni.
+Projekt na zaliczenie kursu 10xDevs - wykonany w 2 dni (dokładny opis projektu zaliczeniowego w Wiki)
 
 ## Quick Start (5 minut)
 
